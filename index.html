@@ -532,12 +532,13 @@ function setStatus(msg,type){
   if(type==='ok') setTimeout(()=>{el.className='';},3000);
 }
 
-async function sheetFetch(method,body){
+// Todas as chamadas usam GET para evitar preflight CORS do Apps Script.
+// O payload vai como parâmetro ?action=X&data=JSON na URL.
+async function sheetGet(params={}){
   const url=getUrl();
   if(!url) throw new Error('URL não configurada');
-  const opts={method,headers:{'Content-Type':'application/json'}};
-  if(body) opts.body=JSON.stringify(body);
-  const res=await fetch(url,opts);
+  const qs=Object.entries(params).map(([k,v])=>k+'='+encodeURIComponent(typeof v==='object'?JSON.stringify(v):v)).join('&');
+  const res=await fetch(url+(qs?'?'+qs:''),{redirect:'follow'});
   if(!res.ok) throw new Error('HTTP '+res.status);
   return res.json();
 }
@@ -546,7 +547,7 @@ async function sheetRead(){
   if(!hasUrl()){setStatus('⚠ Configure a URL do Apps Script em Configurações','err');return;}
   setStatus('⏳ Carregando dados da planilha…','loading');
   try{
-    const r=await sheetFetch('GET');
+    const r=await sheetGet({action:'read'});
     if(!r.ok) throw new Error(r.erro||'Erro desconhecido');
     D=r.data;
     renderDashboard();
@@ -560,9 +561,9 @@ async function sheetRead(){
 }
 
 async function sheetSave(){
-  if(!hasUrl()) return; // sem URL: não salva remotamente (só local já funcionou)
+  if(!hasUrl()) return;
   try{
-    const r=await sheetFetch('POST',{action:'save',data:D});
+    const r=await sheetGet({action:'save',data:D});
     if(!r.ok) throw new Error(r.erro);
     setStatus('✓ Salvo no Google Sheets','ok');
   }catch(e){
@@ -575,7 +576,7 @@ async function sheetInit(){
   if(!confirm('Isso vai criar as abas na planilha e inserir os dados padrão. Continuar?')) return;
   setStatus('⏳ Inicializando planilha…','loading');
   try{
-    const r=await sheetFetch('POST',{action:'init'});
+    const r=await sheetGet({action:'init'});
     if(!r.ok) throw new Error(r.erro);
     D=r.data;
     renderDashboard();
@@ -597,7 +598,7 @@ async function sheetReset(){
   }
   setStatus('⏳ Restaurando…','loading');
   try{
-    const r=await sheetFetch('POST',{action:'reset'});
+    const r=await sheetGet({action:'reset'});
     if(!r.ok) throw new Error(r.erro);
     D=r.data;
     renderDashboard();
