@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel de Indicadores Logísticos</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --bg:#f4f7f3;--panel:#fff;--panel2:#f0f5ed;--line:#d8e3d4;
+    --ink:#15321f;--muted:#5b7563;
+    --fenix:#006030;--fenix-d:#004523;
+    --leaf:#3c8c30;--leaf2:#5aa84a;--moss:#7cb342;--olive:#56753c;--spark:#e10000;
+    --mono:'SFMono-Regular',ui-monospace,monospace;
+    --sans:'Inter',-apple-system,'Segoe UI',Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);
+    background-image:radial-gradient(circle at 100% 0%,rgba(0,96,48,.10),transparent 38%),
+    radial-gradient(circle at 88% 6%,rgba(60,140,48,.08),transparent 30%);
+    min-height:100vh;padding:28px 20px 80px}
+  .wrap{max-width:1240px;margin:0 auto}
+  header{border-bottom:2px solid var(--fenix);padding-bottom:18px;margin-bottom:8px}
+  .brand{display:flex;align-items:center;gap:16px;margin-bottom:14px}
+  .logo{display:flex;align-items:baseline;gap:0;position:relative;line-height:1}
+  .logo .star{position:absolute;top:-13px;left:64px;color:var(--spark);font-size:20px;line-height:1;filter:drop-shadow(0 0 4px rgba(225,0,0,.4))}
+  .logo .name{font-size:38px;font-weight:900;letter-spacing:.02em;color:var(--fenix)}
+  .logo .tag{font-size:12.5px;font-weight:600;color:var(--olive);margin-top:2px;letter-spacing:.01em}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.30em;text-transform:uppercase;color:var(--leaf);margin-bottom:9px;font-weight:600}
+  h1{font-size:27px;font-weight:800;letter-spacing:-.02em;line-height:1.05;color:var(--fenix-d)}
+  h1 span{color:var(--muted);font-weight:400}
+  .sub{color:var(--muted);font-size:13px;margin-top:7px;font-family:var(--mono)}
+
+  /* nav com botão + */
+  .nav-wrap{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:22px 0 26px}
+  .nav-wrap nav{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+  nav button{background:var(--panel);color:var(--olive);border:1px solid var(--line);
+    padding:9px 16px;border-radius:8px;font-family:var(--mono);font-size:12px;
+    letter-spacing:.04em;cursor:pointer;transition:.18s;text-transform:uppercase;
+    display:flex;align-items:center;gap:6px}
+  nav button:hover{color:var(--fenix);border-color:var(--leaf)}
+  nav button.active{background:var(--fenix);color:#fff;border-color:var(--fenix);font-weight:600}
+  nav button .tab-close{opacity:.6;font-size:14px;line-height:1;margin-left:2px}
+  nav button .tab-close:hover{opacity:1}
+  #btn-add-tab{background:var(--panel);color:var(--fenix);border:1.5px dashed var(--leaf);
+    padding:9px 14px;border-radius:8px;font-family:var(--mono);font-size:13px;
+    cursor:pointer;transition:.18s;flex-shrink:0}
+  #btn-add-tab:hover{background:var(--panel2);border-color:var(--fenix)}
+
+  /* kpi */
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:22px}
+  .kpi{background:linear-gradient(160deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:12px;padding:18px 18px 16px;position:relative;overflow:hidden;box-shadow:0 1px 3px rgba(0,69,35,.05)}
+  .kpi::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--fenix)}
+  .kpi.b::before{background:var(--leaf)}.kpi.t::before{background:var(--moss)}
+  .kpi.r::before{background:var(--spark)}.kpi.g::before{background:var(--leaf2)}
+  .kpi .lab{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .kpi .val{font-size:27px;font-weight:800;margin-top:8px;letter-spacing:-.02em;color:var(--fenix-d)}
+  .kpi .dlt{font-family:var(--mono);font-size:11px;margin-top:5px}
+  .up{color:var(--spark)}.down{color:var(--leaf)}.flat{color:var(--muted)}
+
+  /* cards */
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 18px 14px;box-shadow:0 1px 3px rgba(0,69,35,.05)}
+  .card h3{font-size:14px;font-weight:700;letter-spacing:-.01em;color:var(--fenix-d)}
+  .card .cap{font-family:var(--mono);font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin:4px 0 14px}
+  .chart-box{position:relative;height:300px}
+  .chart-box.tall{height:380px}
+  .view{display:none}.view.active{display:block}
+  footer{margin-top:34px;border-top:1px solid var(--line);padding-top:16px;font-family:var(--mono);font-size:11px;color:var(--muted);text-align:center}
+
+  /* aba customizada */
+  .custom-view-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+  .custom-view-header h2{font-size:20px;font-weight:800;color:var(--fenix-d)}
+  .custom-view-header p{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:4px}
+  .custom-charts-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+  .custom-chart-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:0 1px 3px rgba(0,69,35,.05)}
+  .custom-chart-card h4{font-size:13px;font-weight:700;color:var(--fenix-d);margin-bottom:12px}
+  .custom-chart-card .chart-box{height:260px}
+  .empty-custom{text-align:center;padding:60px 20px;color:var(--muted);font-family:var(--mono);font-size:13px}
+  .empty-custom svg{display:block;margin:0 auto 16px;opacity:.3}
+  .btn-add-chart{background:var(--panel2);border:1.5px dashed var(--leaf);border-radius:10px;
+    padding:32px;text-align:center;cursor:pointer;transition:.18s;font-family:var(--mono);
+    font-size:12px;color:var(--olive);margin-top:10px;display:flex;align-items:center;
+    justify-content:center;gap:8px}
+  .btn-add-chart:hover{background:#e8f5e9;border-color:var(--fenix);color:var(--fenix)}
+
+  /* botões flutuantes */
+  .fab-group{position:fixed;bottom:28px;right:28px;z-index:900;display:flex;flex-direction:column;gap:10px;align-items:flex-end}
+  .fab{color:#fff;border:none;border-radius:50px;padding:13px 22px;font-family:var(--mono);
+    font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;
+    box-shadow:0 4px 18px rgba(0,96,48,.35);transition:.2s;display:flex;align-items:center;gap:8px}
+  .fab:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(0,96,48,.45)}
+  .fab.primary{background:var(--fenix)}.fab.primary:hover{background:var(--fenix-d)}
+  .fab.secondary{background:#2e7d32;font-size:11px;padding:10px 18px}
+  .fab.secondary:hover{background:#1b5e20}
+  .fab svg{flex-shrink:0}
+
+  /* modal base */
+  .modal-overlay{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.55);
+    backdrop-filter:blur(3px);display:none;align-items:flex-start;justify-content:center;
+    padding:32px 16px;overflow-y:auto}
+  .modal-overlay.open{display:flex}
+  .modal-box{background:#fff;border-radius:16px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden;margin:auto}
+  .modal-box.wide{max-width:900px}
+  .modal-box.medium{max-width:560px}
+  .modal-head{background:var(--fenix);color:#fff;padding:20px 26px;display:flex;align-items:center;justify-content:space-between}
+  .modal-head h2{font-size:17px;font-weight:800}
+  .modal-head .mh-sub{color:rgba(255,255,255,.7);font-size:11px;font-family:var(--mono);margin-top:3px}
+  .modal-x{background:rgba(255,255,255,.15);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:.15s}
+  .modal-x:hover{background:rgba(255,255,255,.30)}
+  .modal-tabs{display:flex;border-bottom:1px solid var(--line);background:#fafafa;padding:0 26px}
+  .modal-tabs button{background:none;border:none;border-bottom:2px solid transparent;
+    padding:13px 16px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--muted);cursor:pointer;transition:.15s;margin-bottom:-1px}
+  .modal-tabs button:hover{color:var(--fenix)}
+  .modal-tabs button.active{color:var(--fenix);border-bottom-color:var(--fenix);font-weight:700}
+  .modal-body{padding:24px 26px;max-height:62vh;overflow-y:auto}
+  .modal-foot{padding:16px 26px;border-top:1px solid var(--line);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .tab-panel{display:none}.tab-panel.active{display:block}
+
+  /* seções do modal de edição */
+  .sec-title{font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--leaf);font-weight:700;margin:20px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+  .sec-title:first-child{margin-top:0}
+  .month-headers{display:grid;grid-template-columns:140px repeat(5,1fr);gap:8px;margin-bottom:4px}
+  .month-headers span{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:right}
+  .month-headers span:first-child{text-align:left}
+  .month-row{display:grid;grid-template-columns:140px repeat(5,1fr);gap:8px;align-items:center;margin-bottom:6px}
+  .month-row .row-label{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .month-row input{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-radius:6px;padding:6px 8px;outline:none;color:var(--ink);text-align:right;transition:.15s}
+  .month-row input:focus{border-color:var(--fenix);box-shadow:0 0 0 2px rgba(0,96,48,.10)}
+  .month-row input.changed{border-color:var(--moss);background:#f6fcf4}
+  .mot-headers{display:grid;grid-template-columns:1fr 100px 130px;gap:6px;margin-bottom:4px}
+  .mot-headers span{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:right}
+  .mot-headers span:first-child{text-align:left}
+  .motivo-row{display:grid;grid-template-columns:1fr 100px 130px;gap:6px;align-items:center;margin-bottom:6px}
+  .motivo-row .mot-label{font-family:var(--mono);font-size:10px;color:var(--ink);font-weight:600}
+  .motivo-row input{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-radius:6px;padding:6px 8px;outline:none;color:var(--ink);text-align:right;transition:.15s}
+  .motivo-row input:focus{border-color:var(--fenix)}
+  .motivo-row input.changed{border-color:var(--moss);background:#f6fcf4}
+
+  /* botões genéricos */
+  .btn{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+    padding:8px 16px;border-radius:6px;cursor:pointer;border:none;transition:.15s;display:inline-flex;align-items:center;gap:6px}
+  .btn-primary{background:var(--fenix);color:#fff}.btn-primary:hover{background:var(--fenix-d)}
+  .btn-secondary{background:#fff;color:var(--fenix);border:1px solid var(--line)}.btn-secondary:hover{border-color:var(--fenix)}
+  .btn-danger{background:#fff;color:var(--spark);border:1px solid #ffd0d0}.btn-danger:hover{background:#fff0f0}
+  .btn-green{background:#e8f5e9;color:#2e7d32;border:1px solid #c8e6c9}.btn-green:hover{background:#c8e6c9}
+  #save-msg{font-family:var(--mono);font-size:11px;color:var(--leaf);display:none}
+
+  /* modal nova aba */
+  .form-group{margin-bottom:16px}
+  .form-group label{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:5px}
+  .form-group input,.form-group select,.form-group textarea{width:100%;font-family:var(--mono);font-size:13px;border:1px solid var(--line);border-radius:7px;padding:8px 12px;outline:none;color:var(--ink);transition:.15s}
+  .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--fenix);box-shadow:0 0 0 2px rgba(0,96,48,.08)}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .chart-type-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px}
+  .chart-type-opt{border:2px solid var(--line);border-radius:8px;padding:10px 6px;text-align:center;cursor:pointer;transition:.15s;font-family:var(--mono);font-size:10px;color:var(--muted)}
+  .chart-type-opt:hover{border-color:var(--leaf);color:var(--fenix)}
+  .chart-type-opt.sel{border-color:var(--fenix);background:#e8f5e9;color:var(--fenix);font-weight:700}
+  .chart-type-opt .ico{font-size:22px;display:block;margin-bottom:4px}
+  .series-list{margin-top:8px}
+  .series-item{display:grid;grid-template-columns:1fr 80px 80px 80px 80px 80px 80px 28px;gap:6px;align-items:center;margin-bottom:6px}
+  .series-item input{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-radius:5px;padding:5px 7px;outline:none;color:var(--ink)}
+  .series-item input:focus{border-color:var(--fenix)}
+  .series-item input[type=color]{padding:2px;height:32px;cursor:pointer}
+  .series-header{display:grid;grid-template-columns:1fr 80px 80px 80px 80px 80px 80px 28px;gap:6px;margin-bottom:4px}
+  .series-header span{font-family:var(--mono);font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .btn-rm-series{background:#ffebee;border:none;border-radius:4px;color:#c62828;cursor:pointer;font-size:14px;padding:4px 7px;transition:.13s}
+  .btn-rm-series:hover{background:#ffcdd2}
+  #btn-add-series{font-family:var(--mono);font-size:11px;color:var(--fenix);background:none;border:1px dashed var(--leaf);border-radius:5px;padding:5px 12px;cursor:pointer;margin-top:4px;transition:.15s}
+  #btn-add-series:hover{background:#e8f5e9}
+  .kpi-list{margin-top:8px}
+  .kpi-item{display:grid;grid-template-columns:1fr 1fr 60px;gap:8px;margin-bottom:6px;align-items:center}
+  .kpi-item input{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-radius:5px;padding:5px 7px;outline:none;color:var(--ink)}
+  .kpi-item input:focus{border-color:var(--fenix)}
+  .kpi-item select{font-family:var(--mono);font-size:11px;border:1px solid var(--line);border-radius:5px;padding:5px 7px;outline:none}
+
+  /* modal exportar */
+  .export-section{margin-bottom:20px}
+  .export-section h3{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--fenix);font-weight:700;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+  .export-check-list{display:flex;flex-direction:column;gap:8px}
+  .export-check{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid var(--line);border-radius:8px;cursor:pointer;transition:.13s}
+  .export-check:hover{border-color:var(--leaf);background:#f8fdf8}
+  .export-check input[type=checkbox]{accent-color:var(--fenix);width:15px;height:15px;cursor:pointer}
+  .export-check .ck-label{font-size:13px;font-weight:600;color:var(--ink)}
+  .export-check .ck-desc{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:2px}
+  .export-fname{display:flex;gap:8px;align-items:center;margin-top:14px}
+  .export-fname label{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+  .export-fname input{flex:1;font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-radius:6px;padding:7px 10px;outline:none}
+  .export-fname input:focus{border-color:var(--fenix)}
+
+  /* modal adicionar mês — layout de 2 colunas */
+  #addmonth-overlay .month-headers{grid-template-columns:180px 1fr}
+  #addmonth-overlay .month-row{grid-template-columns:180px 1fr}
+  #addmonth-overlay .month-row input{grid-column:2}
+
+  /* status bar */
+  #sheets-status{position:fixed;top:0;left:0;right:0;z-index:2000;padding:9px 20px;font-family:var(--mono);font-size:12px;font-weight:600;text-align:center;display:none;transition:.3s}
+  #sheets-status.ok{background:#e8f5e9;color:#1b5e20;display:block}
+  #sheets-status.err{background:#ffebee;color:#b71c1c;display:block}
+  #sheets-status.loading{background:#fff8e1;color:#6d4c00;display:block}
+
+  /* modal configurações */
+  .cfg-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;margin-bottom:12px}
+  .cfg-row input{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-radius:6px;padding:8px 12px;outline:none;color:var(--ink);width:100%}
+  .cfg-row input:focus{border-color:var(--fenix)}
+  .cfg-hint{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:-6px;margin-bottom:14px}
+  .cfg-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+
+  @media(max-width:760px){.grid,.custom-charts-grid{grid-template-columns:1fr}h1{font-size:21px}.logo .name{font-size:30px}.logo .star{left:50px}.month-headers,.month-row{grid-template-columns:110px repeat(5,1fr)}.form-row{grid-template-columns:1fr}.chart-type-grid{grid-template-columns:repeat(2,1fr)}.series-item,.series-header{grid-template-columns:1fr repeat(5,64px) 28px}}
+</style>
+</head>
+<div id="sheets-status"></div>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="logo">
+        <span class="star">✦</span>
+        <div>
+          <div class="name">FENIX</div>
+          <div class="tag">Distribuidora de Bebidas Ltda</div>
+        </div>
+      </div>
+    </div>
+    <div class="eyebrow">Operação Logística · Jan – Mai 2026</div>
+    <h1>Painel de Indicadores <span>/ Puxada & Distribuição</span></h1>
+    <div class="sub">Custos por Hl · Combustível · Devoluções · Diárias & Hospedagens</div>
+  </header>
+
+  <div class="nav-wrap">
+    <nav id="tabs">
+      <button class="active" data-v="custos">Custos Logísticos</button>
+      <button data-v="combustivel">Combustível & Km</button>
+      <button data-v="devolucoes">Devoluções</button>
+      <button data-v="diarias">Diárias & Hospedagens</button>
+    </nav>
+    <button id="btn-add-tab" onclick="openAddMonthModal()" title="Adicionar mês seguinte">＋ Adicionar Mês</button>
+  </div>
+
+  <!-- CUSTOS -->
+  <section class="view active" id="custos">
+    <div class="kpis" id="kpi-custos"></div>
+    <div class="grid">
+      <div class="card"><h3>Custo Logístico por Hl</h3><div class="cap">R$/Hl · por modal</div><div class="chart-box"><canvas id="c1"></canvas></div></div>
+      <div class="card"><h3>Despesas Logísticas</h3><div class="cap">R$ · Distribuição vs Puxada</div><div class="chart-box"><canvas id="c2"></canvas></div></div>
+      <div class="card"><h3>Receita vs Custo — Puxada FOB</h3><div class="cap">R$ · margem do frete</div><div class="chart-box"><canvas id="c3"></canvas></div></div>
+      <div class="card"><h3>Faturamento (Hl)</h3><div class="cap">Hl movimentados por modal</div><div class="chart-box"><canvas id="c4"></canvas></div></div>
+    </div>
+  </section>
+
+  <!-- COMBUSTIVEL -->
+  <section class="view" id="combustivel">
+    <div class="kpis" id="kpi-comb"></div>
+    <div class="grid">
+      <div class="card"><h3>Consumo de Litros</h3><div class="cap">Litros por modal</div><div class="chart-box"><canvas id="f1"></canvas></div></div>
+      <div class="card"><h3>Km Rodados</h3><div class="cap">Quilometragem por modal</div><div class="chart-box"><canvas id="f2"></canvas></div></div>
+      <div class="card" style="grid-column:1/-1"><h3>Eficiência — Km/Litro</h3><div class="cap">Km/L · quanto maior, melhor</div><div class="chart-box"><canvas id="f3"></canvas></div></div>
+    </div>
+  </section>
+
+  <!-- DEVOLUCOES -->
+  <section class="view" id="devolucoes">
+    <div class="kpis" id="kpi-dev"></div>
+    <div class="grid">
+      <div class="card"><h3>% de Devolução por Mês</h3><div class="cap">Devoluções ÷ pedidos</div><div class="chart-box"><canvas id="d1"></canvas></div></div>
+      <div class="card"><h3>Pedidos vs Devoluções</h3><div class="cap">Volume mensal</div><div class="chart-box"><canvas id="d2"></canvas></div></div>
+      <div class="card"><h3>Devoluções por Motivo</h3><div class="cap">Quantidade de ocorrências</div><div class="chart-box tall"><canvas id="d3"></canvas></div></div>
+      <div class="card"><h3>Valor Perdido por Motivo</h3><div class="cap">R$ em pedidos devolvidos</div><div class="chart-box tall"><canvas id="d4"></canvas></div></div>
+    </div>
+  </section>
+
+  <!-- DIARIAS -->
+  <section class="view" id="diarias">
+    <div class="kpis" id="kpi-dia"></div>
+    <div class="grid">
+      <div class="card"><h3>Diárias / Fretes por Região</h3><div class="cap">R$ · total mensal</div><div class="chart-box"><canvas id="g1"></canvas></div></div>
+      <div class="card"><h3>Hospedagens — Valor</h3><div class="cap">R$ por local</div><div class="chart-box"><canvas id="g2"></canvas></div></div>
+      <div class="card" style="grid-column:1/-1"><h3>Hospedagens — Quantidade</h3><div class="cap">Diárias de hospedagem por local</div><div class="chart-box"><canvas id="g3"></canvas></div></div>
+    </div>
+  </section>
+
+  <footer>Fonte: Indicadores · valores em R$ salvo indicação contrária</footer>
+</div>
+
+<!-- FABs -->
+<div class="fab-group">
+  <button class="fab secondary" onclick="openExportModal()" style="background:#455a64">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Exportar Excel
+  </button>
+  <button class="fab secondary" onclick="openCfgModal()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    Configurações
+  </button>
+  <button class="fab primary" onclick="openEditModal()">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+    Lançar Dados
+  </button>
+</div>
+
+<!-- ═══════════ MODAL CONFIGURAÇÕES ═══════════ -->
+<div class="modal-overlay" id="cfg-overlay">
+  <div class="modal-box medium">
+    <div class="modal-head">
+      <div><h2>Configurações</h2><div class="mh-sub">Conexão com Google Sheets</div></div>
+      <button class="modal-x" onclick="closeModal('cfg-overlay')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>URL do Apps Script (Web App)</label>
+        <div class="cfg-row">
+          <input type="text" id="cfg-url" placeholder="https://script.google.com/macros/s/…/exec"/>
+          <button class="btn btn-secondary" onclick="saveCfgUrl()">Salvar</button>
+        </div>
+        <div class="cfg-hint">Obtenha esta URL em: Apps Script → Implantar → Gerenciar implantações</div>
+      </div>
+      <div id="cfg-connection-status" style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:16px"></div>
+      <div class="cfg-actions">
+        <button class="btn btn-primary" onclick="sheetInit()">🚀 Inicializar Planilha</button>
+        <button class="btn btn-secondary" onclick="sheetRead()">↻ Recarregar Dados</button>
+        <button class="btn btn-danger" onclick="sheetReset()">⚠ Restaurar Padrão</button>
+      </div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:14px;line-height:1.6">
+        <strong>Inicializar Planilha</strong>: use na primeira vez — cria as abas e insere os dados padrão.<br>
+        <strong>Recarregar Dados</strong>: busca os dados atuais da planilha.<br>
+        <strong>Restaurar Padrão</strong>: apaga tudo e volta aos valores originais.
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" onclick="closeModal('cfg-overlay')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MODAL EDITAR DADOS ═══════════ -->
+<div class="modal-overlay" id="edit-overlay">
+  <div class="modal-box wide">
+    <div class="modal-head">
+      <div><h2>Lançamento de Indicadores</h2><div class="mh-sub">Edite e aplique ao dashboard</div></div>
+      <button class="modal-x" onclick="closeModal('edit-overlay')">✕</button>
+    </div>
+    <div class="modal-tabs">
+      <button class="active" onclick="switchTab('tp-custos',this)">Custos</button>
+      <button onclick="switchTab('tp-comb',this)">Combustível</button>
+      <button onclick="switchTab('tp-dev',this)">Devoluções</button>
+      <button onclick="switchTab('tp-diarias',this)">Diárias</button>
+    </div>
+    <div class="modal-body">
+      <div class="tab-panel active" id="tp-custos">
+        <div class="sec-title">Custo Logístico por Hl (R$/Hl)</div>
+        <div class="month-headers"><span>Modal</span><span>Jan</span><span>Fev</span><span>Mar</span><span>Abr</span><span>Mai</span></div>
+        <div id="rows-custo-log"></div>
+        <div class="sec-title">Despesas Logísticas (R$)</div>
+        <div class="month-headers"><span>Modal</span><span>Jan</span><span>Fev</span><span>Mar</span><span>Abr</span><span>Mai</span></div>
+        <div id="rows-despesas"></div>
+        <div class="sec-title">Receita vs Custo — Puxada FOB (R$)</div>
+        <div class="month-headers"><span>Série</span><span>Jan</span><span>Fev</span><span>Mar</span><span>Abr</span><span>Mai</span></div>
+        <div id="rows-fob"></div>
+        <div class="sec-title">Faturamento em Hl</div>
+        <div class="month-headers"><span>Modal</span><span>Jan</span><span>Fev</span><span>Mar</span><span>Abr</span><span>Mai</span></div>
+        <div id="rows-fat"></div>
+      </div>
+      <div class="tab-panel" id="tp-comb">
+        <div class="sec-title">Consumo de Litros</div>
+        <div class="month-headers"><span>Modal</span><span>Jan</span><span>Fev</span><span>Mar</span><span>Abr</span><span>Mai</span></div>
+        <div id="rows-litros"></div>
+        <div class="sec-title">Km Rodados</div>
+        <div class="month-headers"><span>Modal</span><span>Jan</span><span>Fev</span><span>Mar</span><span>Abr</span><span>Mai</span></div>
+        <div id="rows-km"></div>
+      </div>
+      <div class="tab-panel" id="tp-dev">
+        <div class="sec-title">Volume Mensal</div>
+        <div class="month-headers"><span>Série</span><span>Jan</span><span>Fev</span><span>Mar</span><span>Abr</span><span>Mai</span></div>
+        <div id="rows-dev"></div>
+        <div class="sec-title">Motivos de Devolução</div>
+        <div class="mot-headers"><span>Motivo</span><span>Qtd</span><span>Valor (R$)</span></div>
+        <div id="rows-motivos"></div>
+      </div>
+      <div class="tab-panel" id="tp-diarias">
+        <div class="sec-title">Diárias / Fretes (R$)</div>
+        <div class="month-headers"><span>Região</span><span>Jan</span><span>Fev</span><span>Mar</span><span>Abr</span><span>Mai</span></div>
+        <div id="rows-fretes"></div>
+        <div class="sec-title">Hospedagens — Valor (R$)</div>
+        <div class="month-headers"><span>Local</span><span>Jan</span><span>Fev</span><span>Mar</span><span>Abr</span><span>Mai</span></div>
+        <div id="rows-hosp-val"></div>
+        <div class="sec-title">Hospedagens — Quantidade</div>
+        <div class="month-headers"><span>Local</span><span>Jan</span><span>Fev</span><span>Mar</span><span>Abr</span><span>Mai</span></div>
+        <div id="rows-hosp-qtd"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-primary" onclick="applyChanges()">✓ Aplicar ao Dashboard</button>
+      <button class="btn btn-danger" onclick="resetToDefault()">Restaurar Padrão</button>
+      <span id="save-msg">✓ Alterações aplicadas!</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MODAL ADICIONAR MÊS ═══════════ -->
+<div class="modal-overlay" id="addmonth-overlay">
+  <div class="modal-box wide">
+    <div class="modal-head">
+      <div><h2 id="am-title">Adicionar Mês Seguinte</h2><div class="mh-sub" id="am-sub">Preencha os valores para o novo mês</div></div>
+      <button class="modal-x" onclick="closeModal('addmonth-overlay')">✕</button>
+    </div>
+    <div class="modal-tabs">
+      <button class="active" onclick="switchTab('am-tp-custos',this)">Custos</button>
+      <button onclick="switchTab('am-tp-comb',this)">Combustível</button>
+      <button onclick="switchTab('am-tp-dev',this)">Devoluções</button>
+      <button onclick="switchTab('am-tp-diarias',this)">Diárias</button>
+    </div>
+    <div class="modal-body">
+      <!-- CUSTOS -->
+      <div class="tab-panel active" id="am-tp-custos">
+        <div class="sec-title">Custo Logístico por Hl (R$/Hl)</div>
+        <div id="am-rows-custo-log"></div>
+        <div class="sec-title">Despesas Logísticas (R$)</div>
+        <div id="am-rows-despesas"></div>
+        <div class="sec-title">Receita vs Custo — Puxada FOB (R$)</div>
+        <div id="am-rows-fob"></div>
+        <div class="sec-title">Faturamento em Hl</div>
+        <div id="am-rows-fat"></div>
+      </div>
+      <!-- COMBUSTÍVEL -->
+      <div class="tab-panel" id="am-tp-comb">
+        <div class="sec-title">Consumo de Litros</div>
+        <div id="am-rows-litros"></div>
+        <div class="sec-title">Km Rodados</div>
+        <div id="am-rows-km"></div>
+      </div>
+      <!-- DEVOLUÇÕES -->
+      <div class="tab-panel" id="am-tp-dev">
+        <div class="sec-title">Volume Mensal</div>
+        <div id="am-rows-dev"></div>
+        <div class="sec-title">Motivos de Devolução</div>
+        <div id="am-rows-motivos"></div>
+      </div>
+      <!-- DIÁRIAS -->
+      <div class="tab-panel" id="am-tp-diarias">
+        <div class="sec-title">Diárias / Fretes (R$)</div>
+        <div id="am-rows-fretes"></div>
+        <div class="sec-title">Hospedagens — Valor (R$)</div>
+        <div id="am-rows-hosp-val"></div>
+        <div class="sec-title">Hospedagens — Quantidade</div>
+        <div id="am-rows-hosp-qtd"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-primary" onclick="confirmAddMonth()">✓ Adicionar ao Dashboard</button>
+      <button class="btn btn-secondary" onclick="closeModal('addmonth-overlay')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MODAL EXPORTAR ═══════════ -->
+<div class="modal-overlay" id="export-overlay">
+  <div class="modal-box medium">
+    <div class="modal-head">
+      <div><h2>Exportar para Excel</h2><div class="mh-sub">Selecione os dados a exportar</div></div>
+      <button class="modal-x" onclick="closeModal('export-overlay')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="export-section">
+        <h3>Abas do dashboard</h3>
+        <div class="export-check-list">
+          <label class="export-check"><input type="checkbox" id="ex-custos" checked><div><div class="ck-label">Custos Logísticos</div><div class="ck-desc">Custo/Hl, despesas, FOB, faturamento</div></div></label>
+          <label class="export-check"><input type="checkbox" id="ex-comb" checked><div><div class="ck-label">Combustível & Km</div><div class="ck-desc">Litros, quilometragem, eficiência</div></div></label>
+          <label class="export-check"><input type="checkbox" id="ex-dev" checked><div><div class="ck-label">Devoluções</div><div class="ck-desc">Volume mensal, motivos e valores</div></div></label>
+          <label class="export-check"><input type="checkbox" id="ex-dia" checked><div><div class="ck-label">Diárias & Hospedagens</div><div class="ck-desc">Fretes por região, hospedagens</div></div></label>
+        </div>
+      </div>
+      <div class="export-fname">
+        <label>Nome do arquivo</label>
+        <input type="text" id="ex-filename" value="fenix_indicadores"/>
+        <span style="font-family:var(--mono);font-size:12px;color:var(--muted)">.xlsx</span>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-green" onclick="exportarExcel()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Baixar .xlsx
+      </button>
+      <button class="btn btn-secondary" onclick="closeModal('export-overlay')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════
+// DADOS
+// ═══════════════════════════════════
+const DEFAULT={
+  meses:["Janeiro","Fevereiro","Março","Abril","Maio"],
+  custo_log:{"Distribuição":[19.46,14.82,14.54,12.25,12.16],"Puxada":[11.22,10.88,12.38,19.78,9.54],"Puxada FOB":[18.66,22.44,26.78,19.78,9.54]},
+  despesas:{"Distribuição":[193690.96,170576.37,157292.26,163926.15,176362.36],"Puxada":[126763.96,150576.61,120957.37,139225.82,144194.01]},
+  litros:{"Distribuição":[13209.89,16378.41,16271.78,16845.77,18256.45],"Puxada":[17010.32,13607.31,13607.31,13164.79,21466.39]},
+  km:{"Distribuição":[48911.43,48709.7,53418.1,54778.9,58919.1],"Puxada":[39284,55328,54608,47432,52336]},
+  receita_frete:[462035.52,477806.16,233477.6,190461,352586.64],
+  custo_total_fob:[364001.66,257770.57,167874.07,171229.53,204588.53],
+  fat_dist:[9953.8,11510.5,10818.6,13377.32,14497.85],
+  fat_puxada:[11300.87,13838.77,9770.13,7038.29,15109.26],
+  fat_fob:[6794.30,6708.94,4517.50,7038.29,15109.26],
+  palmas_total:[22240,37190,28940,null,34910],
+  gpi_total:[16430,21300,12440,null,21690],
+  hosp_palmas_val:[9557.98,10260,9430,10140,8220],
+  hosp_gpi_val:[10270,10050,11340,9580,10140],
+  hosp_palmas_qtd:[102,113,103,105,84],
+  hosp_gpi_qtd:[110,109,125,101,108],
+  dev_pedidos:[9099,9053,9755,9697,9681],
+  dev_qtd:[816,949,872,751,805],
+  dev_pct:[8.97,10.48,8.94,7.74,8.32],
+  motivos_qtd:{"SEM DINHEIRO":182,"ESTABELEC FECHADO":25,"DESACORDO NÃO PEDIU":8,"PEDIDO ERRADO":108,"CLIENTE DESISTIU":90,"SEM VASILHAME":164,"DESACORDO C/ PEDIDO":34,"PRODUTO ESTRAGADO":99,"ATRASO ENTREGA":38,"ENDEREÇO N/ ENCONTRADO":31,"FORA DE ROTA":19,"FERIADO MUNICIPAL":6},
+  motivos_valor:{"SEM DINHEIRO":156499.25,"ESTABELEC FECHADO":83464.97,"DESACORDO NÃO PEDIU":38909.05,"PEDIDO ERRADO":75092.3,"CLIENTE DESISTIU":68163.17,"SEM VASILHAME":6829.46,"DESACORDO C/ PEDIDO":18394.52,"PRODUTO ESTRAGADO":24742.66,"ATRASO ENTREGA":24094.01,"ENDEREÇO N/ ENCONTRADO":5303.31,"FORA DE ROTA":3999.12,"FERIADO MUNICIPAL":6111.09}
+};
+// ═══════════════════════════════════
+// GOOGLE SHEETS — configuração
+// ═══════════════════════════════════
+const LS_URL_KEY='fenix_sheets_url';
+let SHEETS_URL=localStorage.getItem(LS_URL_KEY)||'';
+
+function getUrl(){ return SHEETS_URL.trim(); }
+function hasUrl(){ return !!getUrl(); }
+
+function setStatus(msg,type){
+  const el=document.getElementById('sheets-status');
+  if(!el) return;
+  el.textContent=msg;
+  el.className=type||'';
+  if(type==='ok') setTimeout(()=>{el.className='';},3000);
+}
+
+async function sheetFetch(method,body){
+  const url=getUrl();
+  if(!url) throw new Error('URL não configurada');
+  const opts={method,headers:{'Content-Type':'application/json'}};
+  if(body) opts.body=JSON.stringify(body);
+  const res=await fetch(url,opts);
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  return res.json();
+}
+
+async function sheetRead(){
+  if(!hasUrl()){setStatus('⚠ Configure a URL do Apps Script em Configurações','err');return;}
+  setStatus('⏳ Carregando dados da planilha…','loading');
+  try{
+    const r=await sheetFetch('GET');
+    if(!r.ok) throw new Error(r.erro||'Erro desconhecido');
+    D=r.data;
+    renderDashboard();
+    updateEyebrow();
+    setStatus('✓ Dados carregados do Google Sheets','ok');
+    updateCfgStatus('✓ Conectado — dados carregados');
+  }catch(e){
+    setStatus('✗ Erro ao carregar: '+e.message,'err');
+    updateCfgStatus('✗ Falha: '+e.message);
+  }
+}
+
+async function sheetSave(){
+  if(!hasUrl()) return; // sem URL: não salva remotamente (só local já funcionou)
+  try{
+    const r=await sheetFetch('POST',{action:'save',data:D});
+    if(!r.ok) throw new Error(r.erro);
+    setStatus('✓ Salvo no Google Sheets','ok');
+  }catch(e){
+    setStatus('✗ Erro ao salvar: '+e.message,'err');
+  }
+}
+
+async function sheetInit(){
+  if(!hasUrl()){alert('Configure a URL do Apps Script primeiro.');return;}
+  if(!confirm('Isso vai criar as abas na planilha e inserir os dados padrão. Continuar?')) return;
+  setStatus('⏳ Inicializando planilha…','loading');
+  try{
+    const r=await sheetFetch('POST',{action:'init'});
+    if(!r.ok) throw new Error(r.erro);
+    D=r.data;
+    renderDashboard();
+    updateEyebrow();
+    setStatus('✓ Planilha inicializada com sucesso!','ok');
+    updateCfgStatus('✓ Planilha inicializada e conectada');
+  }catch(e){
+    setStatus('✗ Erro: '+e.message,'err');
+  }
+}
+
+async function sheetReset(){
+  if(!confirm('Restaurar TODOS os dados ao padrão original? Esta ação não pode ser desfeita.')) return;
+  if(!hasUrl()){
+    D=JSON.parse(JSON.stringify(DEFAULT));
+    renderDashboard();
+    updateEyebrow();
+    return;
+  }
+  setStatus('⏳ Restaurando…','loading');
+  try{
+    const r=await sheetFetch('POST',{action:'reset'});
+    if(!r.ok) throw new Error(r.erro);
+    D=r.data;
+    renderDashboard();
+    updateEyebrow();
+    setStatus('✓ Dados restaurados ao padrão','ok');
+  }catch(e){
+    setStatus('✗ Erro: '+e.message,'err');
+  }
+}
+
+function saveCfgUrl(){
+  const val=document.getElementById('cfg-url').value.trim();
+  SHEETS_URL=val;
+  localStorage.setItem(LS_URL_KEY,val);
+  if(val){
+    updateCfgStatus('URL salva. Clique em "Recarregar Dados" para testar.');
+  } else {
+    updateCfgStatus('URL removida — operando sem Google Sheets.');
+  }
+}
+
+function updateCfgStatus(msg){
+  const el=document.getElementById('cfg-connection-status');
+  if(el) el.textContent=msg;
+}
+
+function openCfgModal(){
+  document.getElementById('cfg-url').value=SHEETS_URL;
+  updateCfgStatus(hasUrl()?'URL configurada. Teste clicando em "Recarregar Dados".':'Nenhuma URL configurada — operando em modo offline.');
+  document.getElementById('cfg-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+// ── dados em memória ───────────────────────────────────────────
+let D=JSON.parse(JSON.stringify(DEFAULT));
+let charts={};
+
+// ═══════════════════════════════════
+// CHART HELPERS
+// ═══════════════════════════════════
+const C={amber:'#006030',amber2:'#3c8c30',blue:'#5aa84a',teal:'#7cb342',red:'#e10000',green:'#2e7d32',violet:'#9ccc65',muted:'#5b7563'};
+const brl=n=>n==null?'—':'R$ '+n.toLocaleString('pt-BR',{maximumFractionDigits:0});
+const num=n=>n==null?'—':n.toLocaleString('pt-BR',{maximumFractionDigits:0});
+function sum(a){return a.reduce((s,x)=>s+(x||0),0)}
+function avg(a){const v=a.filter(x=>x!=null);return v.length?sum(v)/v.length:0}
+function kpi(box,items){const el=document.getElementById(box);if(!el)return;el.innerHTML=items.map(i=>`<div class="kpi ${i.c||''}"><div class="lab">${i.lab}</div><div class="val">${i.val}</div>${i.dlt?`<div class="dlt ${i.cls||'flat'}">${i.dlt}</div>`:''}</div>`).join('')}
+
+Chart.defaults.color=C.muted; Chart.defaults.font.family="'Inter',system-ui,sans-serif"; Chart.defaults.font.size=11;
+Chart.register(ChartDataLabels);
+const grid={color:'rgba(0,69,35,.10)'},gridX={color:'transparent'};
+const legend={labels:{usePointStyle:true,pointStyle:'rectRounded',boxWidth:9,padding:14,font:{size:11},color:'#15321f'}};
+const tip={backgroundColor:'#004523',borderColor:'#006030',borderWidth:1,padding:11,cornerRadius:8,titleColor:'#fff',bodyColor:'#e6f0e6'};
+const kfmt=v=>v==null?'':(Math.abs(v)>=1000?(v/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+'k':v.toLocaleString('pt-BR',{maximumFractionDigits:0}));
+const f2br=v=>v==null?'':v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fpct=v=>v==null?'':v.toLocaleString('pt-BR',{maximumFractionDigits:2})+'%';
+const fnum=v=>v==null?'':v.toLocaleString('pt-BR',{maximumFractionDigits:0});
+const dlLine=(fmt,clr)=>({color:clr||'#15321f',font:{family:"'SFMono-Regular',monospace",size:10,weight:'700'},align:'top',offset:4,backgroundColor:'rgba(255,255,255,.82)',borderRadius:4,padding:{top:2,bottom:2,left:4,right:4},formatter:fmt,display:c=>c.dataset.data[c.dataIndex]!=null});
+const dlBar=(fmt)=>({color:'#15321f',font:{family:"'SFMono-Regular',monospace",size:10,weight:'700'},anchor:'end',align:'top',offset:2,formatter:fmt,display:c=>c.dataset.data[c.dataIndex]!=null});
+const dlBarH=(fmt)=>({color:'#ffffff',font:{family:"'SFMono-Regular',monospace",size:10,weight:'700'},anchor:'end',align:'left',offset:6,formatter:fmt,display:c=>c.dataset.data[c.dataIndex]!=null});
+const dlOff={display:false};
+const baseOpt=(stacked=false)=>({responsive:true,maintainAspectRatio:false,interaction:{intersect:false,mode:'index'},layout:{padding:{top:20,right:14}},plugins:{legend,tooltip:tip,datalabels:dlOff},scales:{x:{grid:gridX,stacked},y:{grid,stacked,beginAtZero:true}}});
+
+function dc(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+function line(id,labels,sets,fmt){dc(id);const o=baseOpt();charts[id]=new Chart(document.getElementById(id),{type:'line',data:{labels,datasets:sets.map(s=>({label:s.l,data:s.d,borderColor:s.c,backgroundColor:s.c+'22',tension:.35,borderWidth:2.5,pointRadius:3,pointBackgroundColor:s.c,fill:s.fill||false,spanGaps:true,datalabels:dlLine(fmt||kfmt,s.c)}))},options:o});}
+function bars(id,labels,sets,opt={}){dc(id);const o={...baseOpt(opt.stacked),indexAxis:opt.h?'y':'x'};charts[id]=new Chart(document.getElementById(id),{type:'bar',data:{labels,datasets:sets.map(s=>({label:s.l,data:s.d,backgroundColor:s.c,borderRadius:5,maxBarThickness:38,datalabels:opt.h?dlBarH(opt.fmt||fnum):dlBar(opt.fmt||kfmt)}))},options:o});}
+
+// ═══════════════════════════════════
+// RENDER DASHBOARD
+// ═══════════════════════════════════
+function renderDashboard(){
+  const M=D.meses;
+  const distAvg=avg(D.custo_log['Distribuição']),puxAvg=avg(D.custo_log['Puxada']);
+  kpi('kpi-custos',[
+    {lab:'Custo Médio Distribuição (R$/Hl)',val:'R$ '+distAvg.toFixed(2),dlt:'Jan→Mai: '+((D.custo_log['Distribuição'][4]/D.custo_log['Distribuição'][0]-1)*100).toFixed(0)+'%',cls:'down'},
+    {lab:'Custo Médio Puxada (R$/Hl)',val:'R$ '+puxAvg.toFixed(2),c:'b'},
+    {lab:'Despesa Total (5m)',val:brl(sum(D.despesas['Distribuição'])+sum(D.despesas['Puxada'])),c:'t'},
+    {lab:'Receita Frete FOB (5m)',val:brl(sum(D.receita_frete)),c:'g'},
+  ]);
+  const totL=sum(D.litros['Distribuição'])+sum(D.litros['Puxada']);
+  const totK=sum(D.km['Distribuição'])+sum(D.km['Puxada']);
+  kpi('kpi-comb',[
+    {lab:'Litros Totais (5m)',val:num(totL)+' L',c:'b'},
+    {lab:'Km Totais (5m)',val:num(totK)+' km',c:'t'},
+    {lab:'Eficiência Distribuição',val:(sum(D.km['Distribuição'])/sum(D.litros['Distribuição'])).toFixed(2)+' km/L',c:'g'},
+    {lab:'Eficiência Puxada',val:(sum(D.km['Puxada'])/sum(D.litros['Puxada'])).toFixed(2)+' km/L'},
+  ]);
+  kpi('kpi-dev',[
+    {lab:'% Devolução Média',val:avg(D.dev_pct).toFixed(2)+'%',c:'r'},
+    {lab:'Devoluções Totais',val:num(sum(D.dev_qtd))},
+    {lab:'Pedidos Totais',val:num(sum(D.dev_pedidos)),c:'b'},
+    {lab:'Valor Devolvido',val:brl(sum(Object.values(D.motivos_valor))),c:'r'},
+  ]);
+  kpi('kpi-dia',[
+    {lab:'Diárias/Fretes Palmas',val:brl(sum(D.palmas_total))},
+    {lab:'Diárias/Fretes Gpi/Dno',val:brl(sum(D.gpi_total)),c:'b'},
+    {lab:'Hospedagens Total',val:brl(sum(D.hosp_palmas_val)+sum(D.hosp_gpi_val)),c:'t'},
+    {lab:'Diárias Hospedagem',val:num(sum(D.hosp_palmas_qtd)+sum(D.hosp_gpi_qtd)),c:'g'},
+  ]);
+  line('c1',M,[{l:'Distribuição',d:D.custo_log['Distribuição'],c:C.amber},{l:'Puxada',d:D.custo_log['Puxada'],c:C.teal},{l:'Puxada FOB',d:D.custo_log['Puxada FOB'],c:C.red}],f2br);
+  bars('c2',M,[{l:'Distribuição',d:D.despesas['Distribuição'],c:C.amber},{l:'Puxada',d:D.despesas['Puxada'],c:C.blue}]);
+  dc('c3');charts['c3']=new Chart(document.getElementById('c3'),{type:'bar',data:{labels:M,datasets:[{label:'Receita do Frete',data:D.receita_frete,backgroundColor:C.green,borderRadius:5,maxBarThickness:34,datalabels:dlBar(kfmt)},{label:'Custo Total',data:D.custo_total_fob,backgroundColor:C.red,borderRadius:5,maxBarThickness:34,datalabels:dlBar(kfmt)}]},options:baseOpt()});
+  line('c4',M,[{l:'Distribuição',d:D.fat_dist,c:C.amber},{l:'Puxada',d:D.fat_puxada,c:C.teal},{l:'Puxada FOB',d:D.fat_fob,c:C.red}]);
+  bars('f1',M,[{l:'Distribuição',d:D.litros['Distribuição'],c:C.teal},{l:'Puxada',d:D.litros['Puxada'],c:C.amber}]);
+  line('f2',M,[{l:'Distribuição',d:D.km['Distribuição'],c:C.amber},{l:'Puxada',d:D.km['Puxada'],c:C.teal}]);
+  const effD=M.map((_,i)=>+(D.km['Distribuição'][i]/D.litros['Distribuição'][i]).toFixed(2));
+  const effP=M.map((_,i)=>+(D.km['Puxada'][i]/D.litros['Puxada'][i]).toFixed(2));
+  line('f3',M,[{l:'Distribuição',d:effD,c:C.green,fill:true},{l:'Puxada',d:effP,c:C.amber,fill:true}],f2br);
+  dc('d1');charts['d1']=new Chart(document.getElementById('d1'),{type:'line',data:{labels:["Jan","Fev","Mar","Abr","Mai"],datasets:[{label:'% Devolução',data:D.dev_pct,borderColor:C.red,backgroundColor:C.red+'1f',tension:.35,borderWidth:2.5,pointRadius:4,pointBackgroundColor:C.red,fill:true,datalabels:dlLine(fpct,'#b00000')}]},options:{...baseOpt(),plugins:{legend:{display:false},tooltip:tip,datalabels:dlLine(fpct,'#b00000')},scales:{x:{grid:gridX},y:{grid,ticks:{callback:v=>v+'%'}}}}});
+  dc('d2');charts['d2']=new Chart(document.getElementById('d2'),{type:'bar',data:{labels:["Jan","Fev","Mar","Abr","Mai"],datasets:[{label:'Pedidos',data:D.dev_pedidos,backgroundColor:C.blue,borderRadius:5,maxBarThickness:34,yAxisID:'y',datalabels:dlBar(kfmt)},{type:'line',label:'Devoluções',data:D.dev_qtd,borderColor:C.amber,backgroundColor:C.amber,tension:.35,borderWidth:2.5,pointRadius:3,yAxisID:'y1',datalabels:{...dlLine(fnum,'#006030'),align:'bottom',offset:6}}]},options:{...baseOpt(),scales:{x:{grid:gridX},y:{grid,beginAtZero:true,position:'left'},y1:{grid:gridX,beginAtZero:true,position:'right'}}}});
+  const mk=Object.entries(D.motivos_qtd).sort((a,b)=>b[1]-a[1]);
+  bars('d3',mk.map(x=>x[0]),[{l:'Ocorrências',d:mk.map(x=>x[1]),c:C.amber}],{h:true});
+  const mv=Object.entries(D.motivos_valor).sort((a,b)=>b[1]-a[1]);
+  const donutCols=['#e10000','#004523','#006030','#2e7d32','#3c8c30','#4f9a3f','#5aa84a','#6bb53f','#7cb342','#9ccc65','#b6d98a','#cfe6b0'];
+  dc('d4');charts['d4']=new Chart(document.getElementById('d4'),{type:'doughnut',data:{labels:mv.map(x=>x[0]),datasets:[{data:mv.map(x=>x[1]),backgroundColor:donutCols,borderColor:'#ffffff',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{usePointStyle:true,pointStyle:'circle',boxWidth:8,padding:8,font:{size:10},color:'#15321f'}},tooltip:{...tip,callbacks:{label:c=>' '+c.label+': '+brl(c.raw)}},datalabels:{color:'#ffffff',font:{family:"'SFMono-Regular',monospace",size:9,weight:'700'},formatter:(v,c)=>{const t=c.dataset.data.reduce((s,x)=>s+x,0);return v/t>=0.04?kfmt(v):''}}},cutout:'58%'}});
+  bars('g1',M,[{l:'Palmas',d:D.palmas_total,c:C.amber},{l:'Gurupi/Dianópolis',d:D.gpi_total,c:C.blue}]);
+  line('g2',M,[{l:'Palmas',d:D.hosp_palmas_val,c:C.teal},{l:'Gpi/Dno',d:D.hosp_gpi_val,c:C.green}],kfmt);
+  dc('g3');charts['g3']=new Chart(document.getElementById('g3'),{type:'bar',data:{labels:M,datasets:[{label:'Palmas',data:D.hosp_palmas_qtd,backgroundColor:C.amber,borderRadius:5,maxBarThickness:46,datalabels:{color:'#fff',font:{family:"'SFMono-Regular',monospace",size:11,weight:'700'},anchor:'center',align:'center',formatter:fnum}},{label:'Gpi/Dno',data:D.hosp_gpi_qtd,backgroundColor:C.teal,borderRadius:5,maxBarThickness:46,datalabels:{color:'#15321f',font:{family:"'SFMono-Regular',monospace",size:11,weight:'700'},anchor:'center',align:'center',formatter:fnum}}]},options:{...baseOpt(true)}});
+}
+
+// ═══════════════════════════════════
+// MODAIS GENÉRICOS
+// ═══════════════════════════════════
+function openEditModal(){ buildModalForms(); document.getElementById('edit-overlay').classList.add('open'); document.body.style.overflow='hidden'; }
+function openExportModal(){
+  document.getElementById('export-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(id){ document.getElementById(id).classList.remove('open'); document.body.style.overflow=''; }
+
+document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{ if(e.target===o) closeModal(o.id); }));
+
+function switchTab(id,btn){
+  btn.closest('.modal-tabs').querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+  btn.closest('.modal-box').querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+
+// dashboard tabs
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=e=>{
+  if(e.target.classList.contains('tab-close')) return;
+  document.querySelectorAll('#tabs button').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.getElementById(b.dataset.v).classList.add('active');
+});
+
+// ═══════════════════════════════════
+// FORMULÁRIOS DE EDIÇÃO
+// ═══════════════════════════════════
+function makeMonthRow(containerId,rowLabel,dataArray,onChange){
+  const row=document.createElement('div');row.className='month-row';
+  row.innerHTML=`<span class="row-label">${rowLabel}</span>`;
+  dataArray.forEach((val,i)=>{
+    const inp=document.createElement('input');inp.type='number';inp.step='any';
+    inp.value=val!==null?val:'';inp.placeholder=val===null?'N/A':'';
+    inp.addEventListener('input',function(){this.classList.add('changed');onChange(i,this.value===''?null:parseFloat(this.value));});
+    row.appendChild(inp);
+  });
+  document.getElementById(containerId).appendChild(row);
+}
+
+function buildModalForms(){
+  ['rows-custo-log','rows-despesas','rows-fob','rows-fat','rows-litros','rows-km','rows-dev','rows-motivos','rows-fretes','rows-hosp-val','rows-hosp-qtd']
+    .forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='';});
+  Object.keys(D.custo_log).forEach(m=>makeMonthRow('rows-custo-log',m,D.custo_log[m],(i,v)=>{D.custo_log[m][i]=v;}));
+  Object.keys(D.despesas).forEach(m=>makeMonthRow('rows-despesas',m,D.despesas[m],(i,v)=>{D.despesas[m][i]=v;}));
+  makeMonthRow('rows-fob','Receita Frete',D.receita_frete,(i,v)=>{D.receita_frete[i]=v;});
+  makeMonthRow('rows-fob','Custo FOB',D.custo_total_fob,(i,v)=>{D.custo_total_fob[i]=v;});
+  makeMonthRow('rows-fat','Distribuição',D.fat_dist,(i,v)=>{D.fat_dist[i]=v;});
+  makeMonthRow('rows-fat','Puxada',D.fat_puxada,(i,v)=>{D.fat_puxada[i]=v;});
+  makeMonthRow('rows-fat','Puxada FOB',D.fat_fob,(i,v)=>{D.fat_fob[i]=v;});
+  Object.keys(D.litros).forEach(m=>makeMonthRow('rows-litros',m,D.litros[m],(i,v)=>{D.litros[m][i]=v;}));
+  Object.keys(D.km).forEach(m=>makeMonthRow('rows-km',m,D.km[m],(i,v)=>{D.km[m][i]=v;}));
+  makeMonthRow('rows-dev','Pedidos',D.dev_pedidos,(i,v)=>{D.dev_pedidos[i]=v;});
+  makeMonthRow('rows-dev','Devoluções',D.dev_qtd,(i,v)=>{D.dev_qtd[i]=v;});
+  makeMonthRow('rows-dev','% Devolução',D.dev_pct,(i,v)=>{D.dev_pct[i]=v;});
+  const mc=document.getElementById('rows-motivos');
+  Object.keys(D.motivos_qtd).forEach(mot=>{
+    const row=document.createElement('div');row.className='motivo-row';
+    row.innerHTML=`<span class="mot-label">${mot}</span>`;
+    ['motivos_qtd','motivos_valor'].forEach(f=>{
+      const inp=document.createElement('input');inp.type='number';inp.step='any';inp.value=D[f][mot];
+      inp.addEventListener('input',function(){this.classList.add('changed');D[f][mot]=parseFloat(this.value)||0;});
+      row.appendChild(inp);
+    });
+    mc.appendChild(row);
+  });
+  makeMonthRow('rows-fretes','Palmas',D.palmas_total,(i,v)=>{D.palmas_total[i]=v;});
+  makeMonthRow('rows-fretes','Gurupi/Dno',D.gpi_total,(i,v)=>{D.gpi_total[i]=v;});
+  makeMonthRow('rows-hosp-val','Palmas',D.hosp_palmas_val,(i,v)=>{D.hosp_palmas_val[i]=v;});
+  makeMonthRow('rows-hosp-val','Gpi/Dno',D.hosp_gpi_val,(i,v)=>{D.hosp_gpi_val[i]=v;});
+  makeMonthRow('rows-hosp-qtd','Palmas',D.hosp_palmas_qtd,(i,v)=>{D.hosp_palmas_qtd[i]=v;});
+  makeMonthRow('rows-hosp-qtd','Gpi/Dno',D.hosp_gpi_qtd,(i,v)=>{D.hosp_gpi_qtd[i]=v;});
+}
+
+function applyChanges(){
+  sheetSave();
+  renderDashboard();
+  const msg=document.getElementById('save-msg');msg.style.display='inline';
+  setTimeout(()=>msg.style.display='none',2500);
+}
+function resetToDefault(){
+  if(!confirm('Restaurar todos os valores para o padrão original?')) return;
+  sheetReset();
+  buildModalForms();
+}
+
+// ═══════════════════════════════════
+// ADICIONAR MÊS SEGUINTE
+// ═══════════════════════════════════
+const MESES_NOMES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+// Objeto temporário que guarda os valores digitados no modal
+let AM={};
+
+function openAddMonthModal(){
+  const nextIdx=D.meses.length;
+  if(nextIdx>=12){alert('Máximo de 12 meses atingido.');return;}
+  const nextMes=MESES_NOMES[nextIdx];
+
+  document.getElementById('am-title').textContent='Adicionar — '+nextMes;
+  document.getElementById('am-sub').textContent='Preencha os valores para '+nextMes;
+
+  // Atualiza subtítulo do dashboard (será atualizado ao aplicar)
+  AM={};
+
+  // Resetar abas do modal para a primeira
+  document.querySelectorAll('#addmonth-overlay .modal-tabs button').forEach((b,i)=>b.classList.toggle('active',i===0));
+  document.querySelectorAll('#addmonth-overlay .tab-panel').forEach((p,i)=>p.classList.toggle('active',i===0));
+
+  buildAddMonthForms(nextMes);
+  document.getElementById('addmonth-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function amInput(container,label,key,placeholder){
+  const wrap=document.createElement('div');wrap.className='month-row';
+  wrap.innerHTML=`<span class="row-label">${label}</span>`;
+  const inp=document.createElement('input');
+  inp.type='number';inp.step='any';inp.placeholder=placeholder||'';
+  inp.addEventListener('input',()=>{AM[key]=inp.value===''?null:parseFloat(inp.value);});
+  AM[key]=null;
+  wrap.appendChild(inp);
+  document.getElementById(container).appendChild(wrap);
+}
+
+function buildAddMonthForms(mes){
+  // limpar
+  ['am-rows-custo-log','am-rows-despesas','am-rows-fob','am-rows-fat',
+   'am-rows-litros','am-rows-km','am-rows-dev','am-rows-motivos',
+   'am-rows-fretes','am-rows-hosp-val','am-rows-hosp-qtd'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.innerHTML='';
+  });
+
+  // Helper: cria linha com cabeçalho de coluna "Valor – <MÊS>"
+  function addHeader(containerId){
+    const h=document.createElement('div');h.className='month-headers';
+    h.innerHTML=`<span>Série / Modal</span><span>Valor — ${mes}</span>`;
+    document.getElementById(containerId).appendChild(h);
+  }
+
+  // CUSTOS
+  addHeader('am-rows-custo-log');
+  Object.keys(D.custo_log).forEach(m=>amInput('am-rows-custo-log',m,'custo_log__'+m));
+  addHeader('am-rows-despesas');
+  Object.keys(D.despesas).forEach(m=>amInput('am-rows-despesas',m,'despesas__'+m));
+  addHeader('am-rows-fob');
+  amInput('am-rows-fob','Receita Frete','receita_frete');
+  amInput('am-rows-fob','Custo FOB','custo_total_fob');
+  addHeader('am-rows-fat');
+  amInput('am-rows-fat','Distribuição','fat_dist');
+  amInput('am-rows-fat','Puxada','fat_puxada');
+  amInput('am-rows-fat','Puxada FOB','fat_fob');
+
+  // COMBUSTÍVEL
+  addHeader('am-rows-litros');
+  Object.keys(D.litros).forEach(m=>amInput('am-rows-litros',m,'litros__'+m));
+  addHeader('am-rows-km');
+  Object.keys(D.km).forEach(m=>amInput('am-rows-km',m,'km__'+m));
+
+  // DEVOLUÇÕES
+  addHeader('am-rows-dev');
+  amInput('am-rows-dev','Pedidos','dev_pedidos');
+  amInput('am-rows-dev','Devoluções','dev_qtd');
+  amInput('am-rows-dev','% Devolução','dev_pct');
+
+  // Motivos — apenas quantidade e valor (sem colunas mensais)
+  const mc=document.getElementById('am-rows-motivos');
+  const mh=document.createElement('div');mh.className='mot-headers';
+  mh.innerHTML='<span>Motivo</span><span>Qtd</span><span>Valor (R$)</span>';
+  mc.appendChild(mh);
+  Object.keys(D.motivos_qtd).forEach(mot=>{
+    const row=document.createElement('div');row.className='motivo-row';
+    row.innerHTML=`<span class="mot-label">${mot}</span>`;
+    const iq=document.createElement('input');iq.type='number';iq.step='any';iq.value=D.motivos_qtd[mot];
+    iq.addEventListener('input',()=>{AM['mq__'+mot]=parseFloat(iq.value)||0;});
+    AM['mq__'+mot]=D.motivos_qtd[mot];
+    const iv=document.createElement('input');iv.type='number';iv.step='any';iv.value=D.motivos_valor[mot];
+    iv.addEventListener('input',()=>{AM['mv__'+mot]=parseFloat(iv.value)||0;});
+    AM['mv__'+mot]=D.motivos_valor[mot];
+    row.appendChild(iq);row.appendChild(iv);
+    mc.appendChild(row);
+  });
+
+  // DIÁRIAS
+  addHeader('am-rows-fretes');
+  amInput('am-rows-fretes','Palmas','palmas_total');
+  amInput('am-rows-fretes','Gurupi/Dno','gpi_total');
+  addHeader('am-rows-hosp-val');
+  amInput('am-rows-hosp-val','Palmas','hosp_palmas_val');
+  amInput('am-rows-hosp-val','Gpi/Dno','hosp_gpi_val');
+  addHeader('am-rows-hosp-qtd');
+  amInput('am-rows-hosp-qtd','Palmas','hosp_palmas_qtd');
+  amInput('am-rows-hosp-qtd','Gpi/Dno','hosp_gpi_qtd');
+}
+
+function confirmAddMonth(){
+  const nextIdx=D.meses.length;
+  const nextMes=MESES_NOMES[nextIdx];
+
+  // Adicionar nome do mês
+  D.meses.push(nextMes);
+
+  // Custo log
+  Object.keys(D.custo_log).forEach(m=>{
+    D.custo_log[m].push(AM['custo_log__'+m]??null);
+  });
+  // Despesas
+  Object.keys(D.despesas).forEach(m=>{
+    D.despesas[m].push(AM['despesas__'+m]??null);
+  });
+  // FOB
+  D.receita_frete.push(AM['receita_frete']??null);
+  D.custo_total_fob.push(AM['custo_total_fob']??null);
+  // FAT
+  D.fat_dist.push(AM['fat_dist']??null);
+  D.fat_puxada.push(AM['fat_puxada']??null);
+  D.fat_fob.push(AM['fat_fob']??null);
+  // Litros
+  Object.keys(D.litros).forEach(m=>{
+    D.litros[m].push(AM['litros__'+m]??null);
+  });
+  // KM
+  Object.keys(D.km).forEach(m=>{
+    D.km[m].push(AM['km__'+m]??null);
+  });
+  // Dev
+  D.dev_pedidos.push(AM['dev_pedidos']??null);
+  D.dev_qtd.push(AM['dev_qtd']??null);
+  D.dev_pct.push(AM['dev_pct']??null);
+  // Motivos (substitui acumulado, não é mensal)
+  Object.keys(D.motivos_qtd).forEach(mot=>{
+    D.motivos_qtd[mot]=AM['mq__'+mot]??D.motivos_qtd[mot];
+    D.motivos_valor[mot]=AM['mv__'+mot]??D.motivos_valor[mot];
+  });
+  // Diárias
+  D.palmas_total.push(AM['palmas_total']??null);
+  D.gpi_total.push(AM['gpi_total']??null);
+  D.hosp_palmas_val.push(AM['hosp_palmas_val']??null);
+  D.hosp_gpi_val.push(AM['hosp_gpi_val']??null);
+  D.hosp_palmas_qtd.push(AM['hosp_palmas_qtd']??null);
+  D.hosp_gpi_qtd.push(AM['hosp_gpi_qtd']??null);
+
+  // Atualizar subtítulo do dashboard
+  const eyebrow=document.querySelector('.eyebrow');
+  if(eyebrow) eyebrow.textContent='Operação Logística · '+D.meses[0].slice(0,3)+' – '+nextMes.slice(0,3)+' 2026';
+
+  // Se 12 meses atingido, ocultar o botão
+  if(D.meses.length>=12) document.getElementById('btn-add-tab').style.display='none';
+
+  sheetSave();
+  renderDashboard();
+  closeModal('addmonth-overlay');
+}
+
+// ═══════════════════════════════════
+// EXPORTAR EXCEL
+// ═══════════════════════════════════
+function exportarExcel(){
+  const wb=XLSX.utils.book_new();
+  const fname=(document.getElementById('ex-filename').value.trim()||'fenix_indicadores')+'.xlsx';
+
+  if(document.getElementById('ex-custos').checked){
+    // Custo log
+    const ws1=XLSX.utils.aoa_to_sheet([
+      ['Custo Logístico por Hl (R$/Hl)'],
+      ['Modal',...D.meses],
+      ...Object.entries(D.custo_log).map(([k,v])=>[k,...v]),
+      [],
+      ['Despesas Logísticas (R$)'],
+      ['Modal',...D.meses],
+      ...Object.entries(D.despesas).map(([k,v])=>[k,...v]),
+      [],
+      ['Receita vs Custo FOB (R$)'],
+      ['Série',...D.meses],
+      ['Receita Frete',...D.receita_frete],
+      ['Custo FOB',...D.custo_total_fob],
+      [],
+      ['Faturamento (Hl)'],
+      ['Modal',...D.meses],
+      ['Distribuição',...D.fat_dist],
+      ['Puxada',...D.fat_puxada],
+      ['Puxada FOB',...D.fat_fob],
+    ]);
+    XLSX.utils.book_append_sheet(wb,ws1,'Custos');
+  }
+
+  if(document.getElementById('ex-comb').checked){
+    const ws2=XLSX.utils.aoa_to_sheet([
+      ['Consumo de Litros'],
+      ['Modal',...D.meses],
+      ...Object.entries(D.litros).map(([k,v])=>[k,...v]),
+      [],
+      ['Km Rodados'],
+      ['Modal',...D.meses],
+      ...Object.entries(D.km).map(([k,v])=>[k,...v]),
+      [],
+      ['Eficiência (Km/L)'],
+      ['Modal',...D.meses],
+      ['Distribuição',...D.meses.map((_,i)=>+(D.km['Distribuição'][i]/D.litros['Distribuição'][i]).toFixed(2))],
+      ['Puxada',...D.meses.map((_,i)=>+(D.km['Puxada'][i]/D.litros['Puxada'][i]).toFixed(2))],
+    ]);
+    XLSX.utils.book_append_sheet(wb,ws2,'Combustível');
+  }
+
+  if(document.getElementById('ex-dev').checked){
+    const ws3=XLSX.utils.aoa_to_sheet([
+      ['Volume Mensal'],
+      ['Série','Jan','Fev','Mar','Abr','Mai'],
+      ['Pedidos',...D.dev_pedidos],
+      ['Devoluções',...D.dev_qtd],
+      ['% Devolução',...D.dev_pct],
+      [],
+      ['Motivos de Devolução'],
+      ['Motivo','Qtd Ocorrências','Valor (R$)'],
+      ...Object.keys(D.motivos_qtd).map(k=>[k,D.motivos_qtd[k],D.motivos_valor[k]]),
+    ]);
+    XLSX.utils.book_append_sheet(wb,ws3,'Devoluções');
+  }
+
+  if(document.getElementById('ex-dia').checked){
+    const ws4=XLSX.utils.aoa_to_sheet([
+      ['Diárias / Fretes (R$)'],
+      ['Região',...D.meses],
+      ['Palmas',...D.palmas_total.map(v=>v??'')],
+      ['Gurupi/Dno',...D.gpi_total.map(v=>v??'')],
+      [],
+      ['Hospedagens — Valor (R$)'],
+      ['Local',...D.meses],
+      ['Palmas',...D.hosp_palmas_val],
+      ['Gpi/Dno',...D.hosp_gpi_val],
+      [],
+      ['Hospedagens — Quantidade'],
+      ['Local',...D.meses],
+      ['Palmas',...D.hosp_palmas_qtd],
+      ['Gpi/Dno',...D.hosp_gpi_qtd],
+    ]);
+    XLSX.utils.book_append_sheet(wb,ws4,'Diárias');
+  }
+
+  if(!wb.SheetNames.length){alert('Selecione ao menos uma aba para exportar.');return;}
+  XLSX.writeFile(wb,fname);
+  closeModal('export-overlay');
+}
+
+// ── helper para atualizar eyebrow e botão ─────────────────────
+function updateEyebrow(){
+  const eyebrow=document.querySelector('.eyebrow');
+  if(eyebrow&&D.meses.length>0){
+    const ini=D.meses[0].slice(0,3);
+    const fim=D.meses[D.meses.length-1].slice(0,3);
+    eyebrow.textContent='Operação Logística · '+(D.meses.length>1?ini+' – '+fim:ini)+' 2026';
+  }
+  const btnAdd=document.getElementById('btn-add-tab');
+  if(btnAdd) btnAdd.style.display=D.meses.length>=12?'none':'';
+}
+
+// INIT
+(async function(){
+  renderDashboard(); // renderiza com defaults imediatamente
+  if(hasUrl()){
+    setStatus('⏳ Carregando dados do Google Sheets…','loading');
+    try{
+      const r=await sheetFetch('GET');
+      if(r.ok&&r.data){
+        D=r.data;
+        updateEyebrow();
+        renderDashboard();
+        setStatus('✓ Dados carregados do Google Sheets','ok');
+      } else {
+        setStatus('⚠ Planilha vazia — clique em Configurações → Inicializar Planilha','err');
+      }
+    }catch(e){
+      setStatus('✗ Não foi possível conectar ao Sheets: '+e.message,'err');
+    }
+  }
+})();
+</script>
+</body>
+</html>
