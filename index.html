@@ -497,7 +497,7 @@ const DEFAULT={
   custo_log:{"Distribuição":[19.46,14.82,14.54,12.25,12.16],"Puxada":[11.22,10.88,12.38,19.78,9.54],"Puxada FOB":[18.66,22.44,26.78,19.78,9.54]},
   despesas:{"Distribuição":[193690.96,170576.37,157292.26,163926.15,176362.36],"Puxada":[126763.96,150576.61,120957.37,139225.82,144194.01]},
   litros:{"Distribuição":[13209.89,16378.41,16271.78,16845.77,18256.45],"Puxada":[17010.32,13607.31,13607.31,13164.79,21466.39]},
-  km:{"Distribuição":[48911.43,48709.7,53418.1,54778.9,58919.1],"Puxada":[39284,55328,54608,47432,52336]},
+  km:{"Distribuição":[48911.43,48709.7,53418.1,54778.9,58919.1],"Puxada":[34259,42466,27478,27889,42008]},
   receita_frete:[462035.52,477806.16,233477.6,190461,352586.64],
   custo_total_fob:[364001.66,257770.57,167874.07,171229.53,204588.53],
   fat_dist:[9953.8,11510.5,10818.6,13377.32,14497.85],
@@ -519,7 +519,8 @@ const DEFAULT={
 // GOOGLE SHEETS — configuração
 // ═══════════════════════════════════
 const LS_URL_KEY='fenix_sheets_url';
-let SHEETS_URL=localStorage.getItem(LS_URL_KEY)||'';
+const DEFAULT_SHEETS_URL='https://script.google.com/macros/s/AKfycbwDdMiYs2rIeSWVVtPmDiHMsxFxreCdEc2vVUNGXSMcq7GQPjD3wNVREGlDjDuubWLh/exec';
+let SHEETS_URL=localStorage.getItem(LS_URL_KEY)||DEFAULT_SHEETS_URL;
 
 function getUrl(){ return SHEETS_URL.trim(); }
 function hasUrl(){ return !!getUrl(); }
