@@ -123,12 +123,14 @@
   /* seções do modal de edição */
   .sec-title{font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--leaf);font-weight:700;margin:20px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
   .sec-title:first-child{margin-top:0}
-  .month-headers{display:grid;grid-template-columns:140px repeat(5,1fr);gap:8px;margin-bottom:4px}
-  .month-headers span{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:right}
-  .month-headers span:first-child{text-align:left}
-  .month-row{display:grid;grid-template-columns:140px repeat(5,1fr);gap:8px;align-items:center;margin-bottom:6px}
+  .month-headers{display:grid;grid-template-columns:140px 1fr;gap:8px;margin-bottom:4px;align-items:center}
+  .month-headers span:first-child{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left}
+  .month-headers .js-mh{display:grid;grid-template-columns:repeat(var(--nm,5),1fr);gap:8px}
+  .month-headers .js-mh span{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:right}
+  .month-row{display:grid;grid-template-columns:140px 1fr;gap:8px;align-items:center;margin-bottom:6px}
   .month-row .row-label{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
-  .month-row input{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-radius:6px;padding:6px 8px;outline:none;color:var(--ink);text-align:right;transition:.15s}
+  .month-row .mr-inputs{display:grid;grid-template-columns:repeat(var(--nm,5),1fr);gap:8px}
+  .month-row input{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-radius:6px;padding:6px 8px;outline:none;color:var(--ink);text-align:right;transition:.15s;width:100%;min-width:0}
   .month-row input:focus{border-color:var(--fenix);box-shadow:0 0 0 2px rgba(0,96,48,.10)}
   .month-row input.changed{border-color:var(--moss);background:#f6fcf4}
   .mot-headers{display:grid;grid-template-columns:1fr 100px 130px;gap:6px;margin-bottom:4px}
@@ -139,6 +141,83 @@
   .motivo-row input{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-radius:6px;padding:6px 8px;outline:none;color:var(--ink);text-align:right;transition:.15s}
   .motivo-row input:focus{border-color:var(--fenix)}
   .motivo-row input.changed{border-color:var(--moss);background:#f6fcf4}
+
+  /* ── editor de manutenções ── */
+  .btn-ghost{background:var(--panel2);color:var(--fenix);border:1px dashed var(--leaf);margin-top:12px}
+  .btn-ghost:hover{background:#e8f2e4}
+  .mnt-hint{font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.5}
+  .mnt-edit-wrap{max-height:420px;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:8px}
+  .mnt-erow{display:grid;
+    grid-template-columns:78px 92px 84px 62px 150px 1fr 128px 96px 34px;
+    gap:5px;align-items:center;margin-bottom:5px}
+  .mnt-ehead{display:grid;
+    grid-template-columns:78px 92px 84px 62px 150px 1fr 128px 96px 34px;
+    gap:5px;margin-bottom:6px;position:sticky;top:-8px;background:var(--panel);z-index:2;padding:4px 0}
+  .mnt-ehead span{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.05em;
+    text-transform:uppercase;color:var(--muted)}
+  .mnt-erow input,.mnt-erow select{font-family:var(--mono);font-size:11px;border:1px solid var(--line);
+    border-radius:5px;padding:6px 7px;outline:none;color:var(--ink);background:#fff;
+    transition:.15s;width:100%;min-width:0}
+  .mnt-erow input:focus,.mnt-erow select:focus{border-color:var(--fenix)}
+  .mnt-erow input.changed,.mnt-erow select.changed{border-color:var(--moss);background:#f6fcf4}
+  .mnt-erow input.num{text-align:right}
+  .mnt-del{background:#fff;color:var(--spark);border:1px solid #ffd0d0;border-radius:5px;
+    cursor:pointer;font-size:14px;line-height:1;padding:6px 0;transition:.15s}
+  .mnt-del:hover{background:#fff0f0}
+
+  /* badge % devolução sobre faturamento */
+  .fatpct-badge{display:none;font-family:var(--mono);font-size:11px;font-weight:700;color:#b00000;
+    background:#fff0f0;border:1px solid #f3c4c4;border-radius:6px;padding:6px 10px;margin:8px 0 0;
+    letter-spacing:.02em}
+  .fatpct-badge.show{display:inline-block}
+  .fatpct-badge b{font-size:13px}
+
+  /* ── manutenções: filtros ── */
+  .mnt-filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+  .mnt-flabel{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--muted)}
+  .mnt-fbtn{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.04em;
+    background:var(--panel);color:var(--olive);border:1px solid var(--line);border-radius:6px;
+    padding:7px 12px;cursor:pointer;transition:.15s}
+  .mnt-fbtn:hover{color:var(--fenix);border-color:var(--leaf)}
+  .mnt-fbtn.active{background:var(--fenix);color:#fff;border-color:var(--fenix)}
+  #mnt-cat{font-family:var(--mono);font-size:10px;font-weight:600;background:var(--panel);
+    color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:7px 10px;cursor:pointer;outline:none}
+  #mnt-cat:focus{border-color:var(--fenix)}
+
+  /* ── tabelas de dados ── */
+  .tbl-scroll{max-height:340px;overflow:auto;margin-top:4px;border-radius:8px}
+  .tbl-scroll.tall{max-height:460px}
+  .dtbl{width:100%;border-collapse:collapse;font-size:12px}
+  .dtbl th{position:sticky;top:0;z-index:1;background:var(--panel2);
+    font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--muted);text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);
+    cursor:pointer;user-select:none;white-space:nowrap}
+  .dtbl th:hover{color:var(--fenix)}
+  .dtbl td{padding:8px 10px;border-bottom:1px solid var(--line);color:var(--ink)}
+  .dtbl td.num,.dtbl th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+  .dtbl tbody tr:hover{background:var(--panel2)}
+  .dtbl tbody tr:last-child td{border-bottom:none}
+  .tag{display:inline-block;font-family:var(--mono);font-size:9px;font-weight:700;
+    padding:2px 7px;border-radius:20px;background:#eef5ea;color:var(--fenix);border:1px solid var(--line)}
+  .minibar{display:inline-block;height:5px;background:var(--leaf);border-radius:3px;
+    vertical-align:middle;margin-right:6px}
+  .cnt-pill{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--muted);
+    background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:2px 8px;margin-left:6px}
+  .chart-box.xtall{height:380px}
+
+  /* barra de modo Pedido/Valor nas devoluções */
+  .dev-modebar{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+  .dev-modelabel{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--muted)}
+  .dev-modebar .unit-toggle .ut-btn{padding:6px 14px;font-size:10px}
+
+  /* toggle de unidade Qtd/R$ nos gráficos */
+  .unit-toggle{display:inline-flex;gap:0;margin-left:8px;vertical-align:middle;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+  .unit-toggle .ut-btn{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.04em;
+    background:var(--panel);color:var(--olive);border:none;padding:4px 10px;cursor:pointer;transition:.15s}
+  .unit-toggle .ut-btn:hover{color:var(--fenix)}
+  .unit-toggle .ut-btn.active{background:var(--fenix);color:#fff}
 
   /* botões genéricos */
   .btn{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
@@ -209,7 +288,7 @@
   .cfg-hint{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:-6px;margin-bottom:14px}
   .cfg-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
 
-  @media(max-width:760px){.grid,.custom-charts-grid{grid-template-columns:1fr}h1{font-size:21px}.logo .name{font-size:30px}.logo .star{left:50px}.month-headers,.month-row{grid-template-columns:110px repeat(5,1fr)}.form-row{grid-template-columns:1fr}.chart-type-grid{grid-template-columns:repeat(2,1fr)}.series-item,.series-header{grid-template-columns:1fr repeat(5,64px) 28px}}
+  @media(max-width:760px){.grid,.custom-charts-grid{grid-template-columns:1fr}h1{font-size:21px}.logo .name{font-size:30px}.logo .star{left:50px}.month-headers,.month-row{grid-template-columns:96px 1fr}.form-row{grid-template-columns:1fr}.chart-type-grid{grid-template-columns:repeat(2,1fr)}.series-item,.series-header{grid-template-columns:1fr repeat(5,64px) 28px}}
 </style>
 </head>
 <div id="sheets-status"></div>
@@ -236,6 +315,7 @@
       <button data-v="combustivel">Combustível & Km</button>
       <button data-v="devolucoes">Devoluções</button>
       <button data-v="diarias">Diárias & Hospedagens</button>
+      <button data-v="manutencoes">Manutenções</button>
     </nav>
     <button id="btn-add-tab" onclick="openAddMonthModal()" title="Adicionar mês seguinte">＋ Adicionar Mês</button>
   </div>
@@ -263,12 +343,19 @@
 
   <!-- DEVOLUCOES -->
   <section class="view" id="devolucoes">
+    <div class="dev-modebar">
+      <span class="dev-modelabel">Analisar por:</span>
+      <span class="unit-toggle" id="dev-mode">
+        <button class="ut-btn active" data-m="pedido">Pedido</button>
+        <button class="ut-btn" data-m="valor">Valor (R$)</button>
+      </span>
+    </div>
     <div class="kpis" id="kpi-dev"></div>
     <div class="grid">
       <div class="card"><h3>% de Devolução por Mês</h3><div class="cap">Devoluções ÷ pedidos</div><div class="chart-box"><canvas id="d1"></canvas></div></div>
       <div class="card"><h3>Pedidos vs Devoluções</h3><div class="cap">Volume mensal</div><div class="chart-box"><canvas id="d2"></canvas></div></div>
-      <div class="card"><h3>Devoluções por Motivo</h3><div class="cap">Quantidade de ocorrências</div><div class="chart-box tall"><canvas id="d3"></canvas></div></div>
-      <div class="card"><h3>Valor Perdido por Motivo</h3><div class="cap">R$ em pedidos devolvidos</div><div class="chart-box tall"><canvas id="d4"></canvas></div></div>
+      <div class="card"><h3>Devoluções por Motivo <span class="unit-toggle" id="d3-toggle"><button class="ut-btn active" data-u="qtd">Qtd</button><button class="ut-btn" data-u="rs">R$</button></span></h3><div class="cap" id="d3-cap">Quantidade de ocorrências</div><div class="chart-box tall"><canvas id="d3"></canvas></div></div>
+      <div class="card"><h3>Valor Perdido por Motivo</h3><div class="cap">R$ em pedidos devolvidos</div><div id="d4-fatpct" class="fatpct-badge"></div><div class="chart-box tall"><canvas id="d4"></canvas></div></div>
     </div>
   </section>
 
@@ -279,6 +366,42 @@
       <div class="card"><h3>Diárias / Fretes por Região</h3><div class="cap">R$ · total mensal</div><div class="chart-box"><canvas id="g1"></canvas></div></div>
       <div class="card"><h3>Hospedagens — Valor</h3><div class="cap">R$ por local</div><div class="chart-box"><canvas id="g2"></canvas></div></div>
       <div class="card" style="grid-column:1/-1"><h3>Hospedagens — Quantidade</h3><div class="cap">Diárias de hospedagem por local</div><div class="chart-box"><canvas id="g3"></canvas></div></div>
+    </div>
+  </section>
+
+  <!-- MANUTENCOES -->
+  <section class="view" id="manutencoes">
+    <div class="kpis" id="kpi-mnt"></div>
+    <div class="mnt-filters">
+      <span class="mnt-flabel">Período:</span>
+      <button class="mnt-fbtn active" data-w="all">Junho inteiro</button>
+      <button class="mnt-fbtn" data-w="1">Semana 1 (01–07)</button>
+      <button class="mnt-fbtn" data-w="2">Semana 2 (08–14)</button>
+      <button class="mnt-fbtn" data-w="3">Semana 3 (15–21)</button>
+      <button class="mnt-fbtn" data-w="4">Semana 4 (22–28)</button>
+      <button class="mnt-fbtn" data-w="5">Semana 5 (29–30)</button>
+      <select id="mnt-cat"><option value="all">Todas as categorias</option></select>
+    </div>
+    <div class="grid">
+      <div class="card"><h3>Gasto por Categoria de Serviço</h3><div class="cap">R$ · participação no total</div><div class="chart-box tall"><canvas id="m1"></canvas></div></div>
+      <div class="card"><h3>Nº de Manutenções por Semana</h3><div class="cap">Ordens de serviço abertas</div><div class="chart-box tall"><canvas id="m2"></canvas></div></div>
+      <div class="card" style="grid-column:1/-1"><h3>Top 12 Veículos por Gasto</h3><div class="cap">R$ acumulado por veículo</div><div class="chart-box xtall"><canvas id="m3"></canvas></div></div>
+    </div>
+    <div class="grid">
+      <div class="card"><h3>Veículos que Mais Deram Problema</h3><div class="cap">Nº de ordens de serviço</div>
+        <div class="tbl-scroll"><table class="dtbl" id="t-veic"><thead><tr><th>Veículo</th><th class="num">OS</th><th class="num">Gasto</th></tr></thead><tbody></tbody></table></div>
+      </div>
+      <div class="card"><h3>Maiores Fornecedores por Gasto</h3><div class="cap">R$ · ordens atendidas</div>
+        <div class="tbl-scroll"><table class="dtbl" id="t-forn"><thead><tr><th>Fornecedor</th><th class="num">OS</th><th class="num">Gasto</th></tr></thead><tbody></tbody></table></div>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="card" style="grid-column:1/-1"><h3>Todas as Manutenções <span id="mnt-cnt" class="cnt-pill"></span></h3><div class="cap">Clique no cabeçalho para ordenar</div>
+        <div class="tbl-scroll tall"><table class="dtbl" id="t-all"><thead><tr>
+          <th data-s="os">OS</th><th data-s="data">Data</th><th data-s="placa">Veículo</th><th data-s="apelido">Apelido</th>
+          <th data-s="cat">Categoria</th><th data-s="serv">Serviço / Motivo</th><th data-s="forn">Fornecedor</th><th data-s="tot" class="num">Total (R$)</th>
+        </tr></thead><tbody></tbody></table></div>
+      </div>
     </div>
   </section>
 
@@ -347,48 +470,58 @@
       <button onclick="switchTab('tp-comb',this)">Combustível</button>
       <button onclick="switchTab('tp-dev',this)">Devoluções</button>
       <button onclick="switchTab('tp-diarias',this)">Diárias</button>
+      <button onclick="switchTab('tp-mnt',this)">Manutenções</button>
     </div>
     <div class="modal-body">
       <div class="tab-panel active" id="tp-custos">
         <div class="sec-title">Custo Logístico por Hl (R$/Hl)</div>
-        <div class="month-headers"><span>Modal</span><span>Jan</span><span>Fev</span><span>Mar</span><span>Abr</span><span>Mai</span></div>
+        <div class="month-headers"><span>Modal</span><span class="js-mh" data-fill="months"></span></div>
         <div id="rows-custo-log"></div>
         <div class="sec-title">Despesas Logísticas (R$)</div>
-        <div class="month-headers"><span>Modal</span><span>Jan</span><span>Fev</span><span>Mar</span><span>Abr</span><span>Mai</span></div>
+        <div class="month-headers"><span>Modal</span><span class="js-mh" data-fill="months"></span></div>
         <div id="rows-despesas"></div>
         <div class="sec-title">Receita vs Custo — Puxada FOB (R$)</div>
-        <div class="month-headers"><span>Série</span><span>Jan</span><span>Fev</span><span>Mar</span><span>Abr</span><span>Mai</span></div>
+        <div class="month-headers"><span>Série</span><span class="js-mh" data-fill="months"></span></div>
         <div id="rows-fob"></div>
         <div class="sec-title">Faturamento em Hl</div>
-        <div class="month-headers"><span>Modal</span><span>Jan</span><span>Fev</span><span>Mar</span><span>Abr</span><span>Mai</span></div>
+        <div class="month-headers"><span>Modal</span><span class="js-mh" data-fill="months"></span></div>
         <div id="rows-fat"></div>
       </div>
       <div class="tab-panel" id="tp-comb">
         <div class="sec-title">Consumo de Litros</div>
-        <div class="month-headers"><span>Modal</span><span>Jan</span><span>Fev</span><span>Mar</span><span>Abr</span><span>Mai</span></div>
+        <div class="month-headers"><span>Modal</span><span class="js-mh" data-fill="months"></span></div>
         <div id="rows-litros"></div>
         <div class="sec-title">Km Rodados</div>
-        <div class="month-headers"><span>Modal</span><span>Jan</span><span>Fev</span><span>Mar</span><span>Abr</span><span>Mai</span></div>
+        <div class="month-headers"><span>Modal</span><span class="js-mh" data-fill="months"></span></div>
         <div id="rows-km"></div>
       </div>
       <div class="tab-panel" id="tp-dev">
         <div class="sec-title">Volume Mensal</div>
-        <div class="month-headers"><span>Série</span><span>Jan</span><span>Fev</span><span>Mar</span><span>Abr</span><span>Mai</span></div>
+        <div class="month-headers"><span>Série</span><span class="js-mh" data-fill="months"></span></div>
         <div id="rows-dev"></div>
+        <div class="sec-title">Valores em R$ por mês — faturado e devolvido</div>
+        <div class="month-headers"><span>Série</span><span class="js-mh" data-fill="months"></span></div>
+        <div id="rows-fatrs"></div>
         <div class="sec-title">Motivos de Devolução</div>
         <div class="mot-headers"><span>Motivo</span><span>Qtd</span><span>Valor (R$)</span></div>
         <div id="rows-motivos"></div>
       </div>
       <div class="tab-panel" id="tp-diarias">
         <div class="sec-title">Diárias / Fretes (R$)</div>
-        <div class="month-headers"><span>Região</span><span>Jan</span><span>Fev</span><span>Mar</span><span>Abr</span><span>Mai</span></div>
+        <div class="month-headers"><span>Região</span><span class="js-mh" data-fill="months"></span></div>
         <div id="rows-fretes"></div>
         <div class="sec-title">Hospedagens — Valor (R$)</div>
-        <div class="month-headers"><span>Local</span><span>Jan</span><span>Fev</span><span>Mar</span><span>Abr</span><span>Mai</span></div>
+        <div class="month-headers"><span>Local</span><span class="js-mh" data-fill="months"></span></div>
         <div id="rows-hosp-val"></div>
         <div class="sec-title">Hospedagens — Quantidade</div>
-        <div class="month-headers"><span>Local</span><span>Jan</span><span>Fev</span><span>Mar</span><span>Abr</span><span>Mai</span></div>
+        <div class="month-headers"><span>Local</span><span class="js-mh" data-fill="months"></span></div>
         <div id="rows-hosp-qtd"></div>
+      </div>
+      <div class="tab-panel" id="tp-mnt">
+        <div class="sec-title">Ordens de Serviço <span id="mnt-edit-cnt" class="cnt-pill"></span></div>
+        <div class="mnt-hint"><b>Estes dados vêm da Infleet.</b> Para atualizar, use o menu <b>Infleet → Importar</b> na planilha do Google Sheets e depois recarregue o painel. Edições feitas aqui valem só para esta sessão e serão substituídas na próxima carga.</div>
+        <div class="mnt-edit-wrap"><div id="rows-mnt"></div></div>
+        <button class="btn btn-ghost" onclick="addMntRow()">＋ Adicionar Ordem de Serviço</button>
       </div>
     </div>
     <div class="modal-foot">
@@ -470,6 +603,7 @@
           <label class="export-check"><input type="checkbox" id="ex-comb" checked><div><div class="ck-label">Combustível & Km</div><div class="ck-desc">Litros, quilometragem, eficiência</div></div></label>
           <label class="export-check"><input type="checkbox" id="ex-dev" checked><div><div class="ck-label">Devoluções</div><div class="ck-desc">Volume mensal, motivos e valores</div></div></label>
           <label class="export-check"><input type="checkbox" id="ex-dia" checked><div><div class="ck-label">Diárias & Hospedagens</div><div class="ck-desc">Fretes por região, hospedagens</div></div></label>
+          <label class="export-check"><input type="checkbox" id="ex-mnt" checked><div><div class="ck-label">Manutenções</div><div class="ck-desc">Ordens de serviço, veículos e fornecedores</div></div></label>
         </div>
       </div>
       <div class="export-fname">
@@ -512,6 +646,9 @@ const DEFAULT={
   dev_pedidos:[9099,9053,9755,9697,9681],
   dev_qtd:[816,949,872,751,805],
   dev_pct:[8.97,10.48,8.94,7.74,8.32],
+  faturamento_rs:[null,null,null,null,null],
+  dev_valor_mes:[null,null,null,null,null],
+  manutencoes:[{"Nº O.S.":"#1422","Data de abertura":"30/06/2026","_iso":"2026-06-30","_week":5,"Placa":"TVB0E31","Apelido":"24","Medição":"18.644 km","Fornecedor":"Mercedes-Benz","Motivo":"revisão","Serviço":"Revisão de Garantia","_cat":"Revisão / Lubrificação","_total":4280.0,"Custo da mão de obra":0,"Subtotal peça":4735.04,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1458","Data de abertura":"30/06/2026","_iso":"2026-06-30","_week":5,"Placa":"RSA7C11","Apelido":"17","Medição":"208.042,4 km","Fornecedor":"Borracharia do Paulo","Motivo":"serviço de pneu","Serviço":"Serviço de Pneu","_cat":"Pneus / Borracharia","_total":35.0,"Custo da mão de obra":35,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1432","Data de abertura":"30/06/2026","_iso":"2026-06-30","_week":5,"Placa":"QKJ7925","Apelido":"02","Medição":"26.128,64 km","Fornecedor":"Gigante Truck Diesel","Motivo":"alinhamento e balanceamento","Serviço":"Alinhamento e balenceamento","_cat":"Pneus / Borracharia","_total":270.0,"Custo da mão de obra":270,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1441","Data de abertura":"29/06/2026","_iso":"2026-06-29","_week":5,"Placa":"QKE7H09","Apelido":"13","Medição":"108.520 km","Fornecedor":"AM Tacografo","Motivo":"tirante retrovisor","Serviço":"Tirante Retrovisor","_cat":"Carroceria / Lataria","_total":108.0,"Custo da mão de obra":0,"Subtotal peça":108,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1438","Data de abertura":"29/06/2026","_iso":"2026-06-29","_week":5,"Placa":"MWW0E96","Apelido":"09","Medição":"10.415,97 km","Fornecedor":"Borracharia do Junior","Motivo":"pneu","Serviço":"Serviço de Pneu","_cat":"Pneus / Borracharia","_total":40.0,"Custo da mão de obra":40,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1448","Data de abertura":"29/06/2026","_iso":"2026-06-29","_week":5,"Placa":"QKE7H09","Apelido":"13","Medição":"109.047,4 km","Fornecedor":"Valdine Truck Center","Motivo":"elétrico","Serviço":"Serviço Eletrico","_cat":"Elétrica / Eletrônica","_total":1080.22,"Custo da mão de obra":250,"Subtotal peça":830.22,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1415","Data de abertura":"27/06/2026","_iso":"2026-06-27","_week":4,"Placa":"QWC2636","Apelido":"53","Medição":"0 km","Fornecedor":"W P da Silva","Motivo":"lubrificação","Serviço":"Lubrificação   ","_cat":"Revisão / Lubrificação","_total":550.0,"Custo da mão de obra":550,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1440","Data de abertura":"27/06/2026","_iso":"2026-06-27","_week":4,"Placa":"QKE7H09","Apelido":"13","Medição":"108.520 km","Fornecedor":"Borracharia do Junior","Motivo":"serviço de pneu","Serviço":"Serviço de Pneu","_cat":"Pneus / Borracharia","_total":200.0,"Custo da mão de obra":200,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1418","Data de abertura":"26/06/2026","_iso":"2026-06-26","_week":4,"Placa":"MWW7931","Apelido":"05","Medição":"559.780,32 km","Fornecedor":"Ferpam","Motivo":"cinta","Serviço":"Cinta  ","_cat":"Carroceria / Lataria","_total":261.12,"Custo da mão de obra":261.12,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1414","Data de abertura":"26/06/2026","_iso":"2026-06-26","_week":4,"Placa":"EGG001","Apelido":"E Gas Gurupi","Medição":"0 km","Fornecedor":"Tristão pneus","Motivo":"pneu","Serviço":"Pneu / Roda (Diversos)","_cat":"Pneus / Borracharia","_total":1621.6,"Custo da mão de obra":300,"Subtotal peça":1321.6,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1447","Data de abertura":"26/06/2026","_iso":"2026-06-26","_week":4,"Placa":"QKJ7945","Apelido":"04","Medição":"32.572,2 km","Fornecedor":"Valdine Truck Center","Motivo":"revisão","Serviço":"Revisão de Garantia","_cat":"Revisão / Lubrificação","_total":6783.06,"Custo da mão de obra":1165,"Subtotal peça":5618.06,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1423","Data de abertura":"25/06/2026","_iso":"2026-06-25","_week":4,"Placa":"EGP0001","Apelido":"E Gas Palmas","Medição":"0 km","Fornecedor":"Tropigás","Motivo":"gás","Serviço":"Abastecimento gás ","_cat":"Gás","_total":800.0,"Custo da mão de obra":800,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1460","Data de abertura":"25/06/2026","_iso":"2026-06-25","_week":4,"Placa":"QWC2636","Apelido":"53","Medição":"0 km","Fornecedor":"Borracharia do Paulo","Motivo":"serviço de pneu","Serviço":"Serviço de Pneu","_cat":"Pneus / Borracharia","_total":40.0,"Custo da mão de obra":40,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1449","Data de abertura":"24/06/2026","_iso":"2026-06-24","_week":4,"Placa":"MWW0E96","Apelido":"09","Medição":"104.480,3 km","Fornecedor":"Madul Carrocerias","Motivo":"carroceria","Serviço":"Reparo de Carroceria","_cat":"Carroceria / Lataria","_total":948.0,"Custo da mão de obra":948,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1450","Data de abertura":"23/06/2026","_iso":"2026-06-23","_week":4,"Placa":"MWW0E96","Apelido":"09","Medição":"104.480,3 km","Fornecedor":"AM Tacografo","Motivo":"Eletrico","Serviço":"Reparo eletrico","_cat":"Elétrica / Eletrônica","_total":2276.91,"Custo da mão de obra":1030,"Subtotal peça":1246.91,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1421","Data de abertura":"22/06/2026","_iso":"2026-06-22","_week":4,"Placa":"MWV5995","Apelido":"06","Medição":"489.612,14 km","Fornecedor":"Adolfo Nunes ( Auto Elétrica Imperial )","Motivo":"eletrico","Serviço":"Serviço Eletrico","_cat":"Elétrica / Eletrônica","_total":330.0,"Custo da mão de obra":330,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1446","Data de abertura":"22/06/2026","_iso":"2026-06-22","_week":4,"Placa":"RSE6I26","Apelido":"54","Medição":"0 km","Fornecedor":"Fernando Antunes Batista","Motivo":"eletrico","Serviço":"Serviço Eletrico","_cat":"Elétrica / Eletrônica","_total":2871.8,"Custo da mão de obra":300,"Subtotal peça":2571.8,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1412","Data de abertura":"22/06/2026","_iso":"2026-06-22","_week":4,"Placa":"RSA7C01","Apelido":"18","Medição":"158.455,84 km","Fornecedor":"Auto mecânica do taz","Motivo":"serviço de mola","Serviço":"Serviço de mola","_cat":"Suspensão","_total":4627.0,"Custo da mão de obra":4627,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1445","Data de abertura":"22/06/2026","_iso":"2026-06-22","_week":4,"Placa":"RSB7A71","Apelido":"19","Medição":"136.812,3 km","Fornecedor":"Fernando Antunes Batista","Motivo":"eletrica","Serviço":"Serviço Eletrico","_cat":"Elétrica / Eletrônica","_total":624.0,"Custo da mão de obra":490,"Subtotal peça":134,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1444","Data de abertura":"22/06/2026","_iso":"2026-06-22","_week":4,"Placa":"MWY7085","Apelido":"50","Medição":"0 km","Fornecedor":"Fernando Antunes Batista","Motivo":"elétrico","Serviço":"Serviço Eletrico","_cat":"Elétrica / Eletrônica","_total":967.0,"Custo da mão de obra":260,"Subtotal peça":707,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1443","Data de abertura":"22/06/2026","_iso":"2026-06-22","_week":4,"Placa":"QWC2636","Apelido":"53","Medição":"0 km","Fornecedor":"Fernando Antunes Batista","Motivo":"pistão","Serviço":"Serviço de pistão","_cat":"Freios / Motor / Transmissão","_total":1318.45,"Custo da mão de obra":390,"Subtotal peça":928.45,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1442","Data de abertura":"22/06/2026","_iso":"2026-06-22","_week":4,"Placa":"RSA9F25","Apelido":"52","Medição":"0 km","Fornecedor":"Fernando Antunes Batista","Motivo":"TROCA DE MANGUEIRA E SOLDA","Serviço":"Serviço de manutenção","_cat":"Carroceria / Lataria","_total":1565.0,"Custo da mão de obra":790,"Subtotal peça":775,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1402","Data de abertura":"22/06/2026","_iso":"2026-06-22","_week":4,"Placa":"EGP0001","Apelido":"E Gas Palmas","Medição":"0 km","Fornecedor":"Jardel da Cunha Silva","Motivo":"guincho","Serviço":"Guincho para transporte empilhadeira - entrega","_cat":"Guincho / Socorro","_total":450.0,"Custo da mão de obra":450,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1401","Data de abertura":"22/06/2026","_iso":"2026-06-22","_week":4,"Placa":"MWY7085","Apelido":"50","Medição":"0 km","Fornecedor":"Gurupi Acessórios","Motivo":"eletrico","Serviço":"Serviço Eletrico","_cat":"Elétrica / Eletrônica","_total":260.0,"Custo da mão de obra":260,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1400","Data de abertura":"22/06/2026","_iso":"2026-06-22","_week":4,"Placa":"RSE6I26","Apelido":"54","Medição":"0 km","Fornecedor":"Gurupi Acessórios","Motivo":"Paralama e serviço elétrico","Serviço":"Serviço Eletrico","_cat":"Elétrica / Eletrônica","_total":300.0,"Custo da mão de obra":300,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1399","Data de abertura":"22/06/2026","_iso":"2026-06-22","_week":4,"Placa":"QWC2636","Apelido":"53","Medição":"0 km","Fornecedor":"Gurupi Acessórios","Motivo":"Solda, serviço de pistão, conserto vazamento mangueira do pistão, troca de mangueira pistão","Serviço":"Serviço de pistão","_cat":"Carroceria / Lataria","_total":390.0,"Custo da mão de obra":390,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1398","Data de abertura":"22/06/2026","_iso":"2026-06-22","_week":4,"Placa":"RSB7A71","Apelido":"19","Medição":"135.912,86 km","Fornecedor":"Gurupi Acessórios","Motivo":"eletrico","Serviço":"Serviço Eletrico","_cat":"Elétrica / Eletrônica","_total":490.0,"Custo da mão de obra":490,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1397","Data de abertura":"22/06/2026","_iso":"2026-06-22","_week":4,"Placa":"RSA9F25","Apelido":"52","Medição":"0 km","Fornecedor":"Gurupi Acessórios","Motivo":"serviço de magueira, solda e parafusos do módulo","Serviço":"Serviço mangueira hidráulico","_cat":"Elétrica / Eletrônica","_total":790.0,"Custo da mão de obra":790,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1428","Data de abertura":"19/06/2026","_iso":"2026-06-19","_week":3,"Placa":"MWW7931","Apelido":"05","Medição":"559.784,92 km","Fornecedor":"Valdine Truck Center","Motivo":"Serviço de amortecedor","Serviço":"Substituição do amortecedor","_cat":"Suspensão","_total":8210.2,"Custo da mão de obra":1910,"Subtotal peça":6300.2,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1427","Data de abertura":"19/06/2026","_iso":"2026-06-19","_week":3,"Placa":"QKE7729","Apelido":"11","Medição":"169.300 km","Fornecedor":"Valdine Truck Center","Motivo":"eletrico","Serviço":"Reparo eletrico","_cat":"Elétrica / Eletrônica","_total":349.65,"Custo da mão de obra":0,"Subtotal peça":349.65,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1426","Data de abertura":"19/06/2026","_iso":"2026-06-19","_week":3,"Placa":"EGP0001","Apelido":"E Gas Palmas","Medição":"0 km","Fornecedor":"Tropigás","Motivo":"gás","Serviço":"Abastecimento gás ","_cat":"Gás","_total":800.0,"Custo da mão de obra":800,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1404","Data de abertura":"19/06/2026","_iso":"2026-06-19","_week":3,"Placa":"MWY7085","Apelido":"50","Medição":"0 km","Fornecedor":"Souza Freio e Molas Ltda","Motivo":"serviço de catraca","Serviço":"Serviço de catraca","_cat":"Freios / Motor / Transmissão","_total":397.25,"Custo da mão de obra":40,"Subtotal peça":357.25,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1420","Data de abertura":"17/06/2026","_iso":"2026-06-17","_week":3,"Placa":"TVA3H97","Apelido":"08","Medição":"15.406,93 km","Fornecedor":"Valdine Truck Center","Motivo":"eletrico","Serviço":"Serviço Eletrico","_cat":"Elétrica / Eletrônica","_total":648.7,"Custo da mão de obra":330,"Subtotal peça":318.7,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1403","Data de abertura":"16/06/2026","_iso":"2026-06-16","_week":3,"Placa":"RSE6I26","Apelido":"54","Medição":"0 km","Fornecedor":"Souza Freio e Molas Ltda","Motivo":"folga da carreta e bolsa suspensor","Serviço":"Junta do cubo","_cat":"Suspensão","_total":1242.63,"Custo da mão de obra":0,"Subtotal peça":1242.63,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1403","Data de abertura":"16/06/2026","_iso":"2026-06-16","_week":3,"Placa":"RSE6I26","Apelido":"54","Medição":"0 km","Fornecedor":"Souza Freio e Molas Ltda","Motivo":"folga da carreta e bolsa suspensor","Serviço":"Tirar folga da roda carreta","_cat":"Suspensão","_total":270.0,"Custo da mão de obra":270,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1410","Data de abertura":"15/06/2026","_iso":"2026-06-15","_week":3,"Placa":"RSA7C01","Apelido":"18","Medição":"158.455,84 km","Fornecedor":"Adriano Brito Lavajato","Motivo":"lavagem e lubrificação","Serviço":"Lavagem e lubrificação do veículo","_cat":"Revisão / Lubrificação","_total":320.0,"Custo da mão de obra":320,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1409","Data de abertura":"15/06/2026","_iso":"2026-06-15","_week":3,"Placa":"MWV5995","Apelido":"06","Medição":"489.374,04 km","Fornecedor":"Adriano Brito Lavajato","Motivo":"lavagem e lubrificação","Serviço":"Lavagem e lubrificação do veículo","_cat":"Revisão / Lubrificação","_total":320.0,"Custo da mão de obra":320,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1408","Data de abertura":"15/06/2026","_iso":"2026-06-15","_week":3,"Placa":"RSB7A41","Apelido":"20","Medição":"175.883,37 km","Fornecedor":"Adriano Brito Lavajato","Motivo":"lavagem e lubrificação","Serviço":"Lavagem e lubrificação do veículo","_cat":"Revisão / Lubrificação","_total":320.0,"Custo da mão de obra":320,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1407","Data de abertura":"15/06/2026","_iso":"2026-06-15","_week":3,"Placa":"RSB7A61","Apelido":"22","Medição":"191.072,28 km","Fornecedor":"Adriano Brito Lavajato","Motivo":"lavagem e lubrificação","Serviço":"Lavagem e lubrificação do veículo","_cat":"Revisão / Lubrificação","_total":320.0,"Custo da mão de obra":320,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1435","Data de abertura":"15/06/2026","_iso":"2026-06-15","_week":3,"Placa":"QKE7729","Apelido":"11","Medição":"237.630 km","Fornecedor":"Borracharia do Junior","Motivo":"serviço de pneu","Serviço":"Serviço de Pneu","_cat":"Pneus / Borracharia","_total":460.0,"Custo da mão de obra":460,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1391","Data de abertura":"15/06/2026","_iso":"2026-06-15","_week":3,"Placa":"EGD0001","Apelido":"E Gas DNO","Medição":"0 km","Fornecedor":"Gás lar distribuidora","Motivo":"gás","Serviço":"Abastecimento gás ","_cat":"Gás","_total":721.04,"Custo da mão de obra":0,"Subtotal peça":721.04,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1388","Data de abertura":"15/06/2026","_iso":"2026-06-15","_week":3,"Placa":"EGP0001","Apelido":"E Gas Palmas","Medição":"0 km","Fornecedor":"Gás lar distribuidora","Motivo":"gás","Serviço":"Abastecimento gás ","_cat":"Gás","_total":840.0,"Custo da mão de obra":840,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1439","Data de abertura":"13/06/2026","_iso":"2026-06-13","_week":2,"Placa":"MWY7085","Apelido":"50","Medição":"0 km","Fornecedor":"Borracharia do Junior","Motivo":"serviço de pneu","Serviço":"Serviço de Pneu","_cat":"Pneus / Borracharia","_total":420.0,"Custo da mão de obra":420,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1419","Data de abertura":"12/06/2026","_iso":"2026-06-12","_week":2,"Placa":"MWW7931","Apelido":"05","Medição":"559.780,32 km","Fornecedor":"Madul Carrocerias","Motivo":"carroceria","Serviço":"Serviço de carroceria","_cat":"Carroceria / Lataria","_total":1050.0,"Custo da mão de obra":1050,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1417","Data de abertura":"12/06/2026","_iso":"2026-06-12","_week":2,"Placa":"QKE7H09","Apelido":"13","Medição":"107.786,74 km","Fornecedor":"Madul Carrocerias","Motivo":"carroceria","Serviço":"Serviço de carroceria","_cat":"Carroceria / Lataria","_total":850.0,"Custo da mão de obra":850,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1452","Data de abertura":"12/06/2026","_iso":"2026-06-12","_week":2,"Placa":"RMB7E14","Apelido":"104","Medição":"13.839,1 km","Fornecedor":"Autovia Fiat","Motivo":"troca de fechadura","Serviço":"Troca de fechadura","_cat":"Carroceria / Lataria","_total":1978.84,"Custo da mão de obra":377.59,"Subtotal peça":1601.25,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1411","Data de abertura":"12/06/2026","_iso":"2026-06-12","_week":2,"Placa":"EGP0001","Apelido":"E Gas Palmas","Medição":"0 km","Fornecedor":"Jardel da Cunha Silva","Motivo":"guincho","Serviço":"Guincho para transporte empilhadeira - entrega","_cat":"Guincho / Socorro","_total":450.0,"Custo da mão de obra":450,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1429","Data de abertura":"11/06/2026","_iso":"2026-06-11","_week":2,"Placa":"TVA3H97","Apelido":"08","Medição":"15.556,85 km","Fornecedor":"Mercedes-Benz","Motivo":"revisão","Serviço":"Revisão de Garantia","_cat":"Revisão / Lubrificação","_total":4179.320000000001,"Custo da mão de obra":0,"Subtotal peça":4493.89,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1385","Data de abertura":"11/06/2026","_iso":"2026-06-11","_week":2,"Placa":"TVA3H97","Apelido":"08","Medição":"102.080 km","Fornecedor":"Mercedes-Benz","Motivo":"REVISÃO","Serviço":"Revisão de Garantia","_cat":"Revisão / Lubrificação","_total":4179.320000000001,"Custo da mão de obra":0,"Subtotal peça":4493.89,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1384","Data de abertura":"11/06/2026","_iso":"2026-06-11","_week":2,"Placa":"TVA3H95","Apelido":"07","Medição":"186.120 km","Fornecedor":"Mercedes-Benz","Motivo":"moldura","Serviço":"LU MOLDURA DIANT CENTRO EMB","_cat":"Carroceria / Lataria","_total":395.36,"Custo da mão de obra":395.36,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1382","Data de abertura":"11/06/2026","_iso":"2026-06-11","_week":2,"Placa":"QKJ7905","Apelido":"01","Medição":"270.610 km","Fornecedor":"Madepar Pneus","Motivo":"pneu","Serviço":"Pneus Recapado","_cat":"Pneus / Borracharia","_total":1260.0,"Custo da mão de obra":0,"Subtotal peça":1260,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1430","Data de abertura":"09/06/2026","_iso":"2026-06-09","_week":2,"Placa":"MWY7085","Apelido":"50","Medição":"0 km","Fornecedor":"Shopping das baterias","Motivo":"bateria","Serviço":"Troca da bateria","_cat":"Elétrica / Eletrônica","_total":2900.0,"Custo da mão de obra":0,"Subtotal peça":2900,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1406","Data de abertura":"09/06/2026","_iso":"2026-06-09","_week":2,"Placa":"RSB7A61","Apelido":"22","Medição":"191.072,28 km","Fornecedor":"Auto Mecânicas Serpadiesel","Motivo":"embreagem","Serviço":"Serviço de embreagem","_cat":"Freios / Motor / Transmissão","_total":7270.0,"Custo da mão de obra":2320,"Subtotal peça":4950,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1405","Data de abertura":"09/06/2026","_iso":"2026-06-09","_week":2,"Placa":"RSA7C01","Apelido":"18","Medição":"158.455,84 km","Fornecedor":"Auto Mecânicas Serpadiesel","Motivo":"Socorro","Serviço":"Serviço de Socorro","_cat":"Guincho / Socorro","_total":8275.0,"Custo da mão de obra":540,"Subtotal peça":7735,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1436","Data de abertura":"09/06/2026","_iso":"2026-06-09","_week":2,"Placa":"RMB7E14","Apelido":"104","Medição":"12.782,2 km","Fornecedor":"Borracharia do Junior","Motivo":"serviço de pneu","Serviço":"Serviço de Pneu","_cat":"Pneus / Borracharia","_total":30.0,"Custo da mão de obra":30,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1386","Data de abertura":"09/06/2026","_iso":"2026-06-09","_week":2,"Placa":"MWY7085","Apelido":"50","Medição":"0 km","Fornecedor":"Speedmax pneus - Cpx Distribuidora","Motivo":"PNEU","Serviço":"Pneu / Roda (Diversos)","_cat":"Pneus / Borracharia","_total":6880.0,"Custo da mão de obra":0,"Subtotal peça":6880,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1431","Data de abertura":"08/06/2026","_iso":"2026-06-08","_week":2,"Placa":"RSB7A51","Apelido":"21","Medição":"184.655,89 km","Fornecedor":"Carretas Araguaia Ltda ","Motivo":"carroceria","Serviço":"Serviço de carroceria","_cat":"Carroceria / Lataria","_total":1005.0,"Custo da mão de obra":1005,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1389","Data de abertura":"08/06/2026","_iso":"2026-06-08","_week":2,"Placa":"EEP0001","Apelido":"E Eletri Palmas","Medição":"0 km","Fornecedor":"Somos Empilhadeiras ","Motivo":"manutenção garfo","Serviço":"Manutenção empilhadeira","_cat":"Freios / Motor / Transmissão","_total":1051.49,"Custo da mão de obra":669.87,"Subtotal peça":381.62,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1387","Data de abertura":"08/06/2026","_iso":"2026-06-08","_week":2,"Placa":"QKE7729","Apelido":"11","Medição":"261.200 km","Fornecedor":"Speedmax pneus - Cpx Distribuidora","Motivo":"PNEU","Serviço":"Pneu / Roda (Diversos)","_cat":"Pneus / Borracharia","_total":6597.12,"Custo da mão de obra":0,"Subtotal peça":6597.12,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1413","Data de abertura":"08/06/2026","_iso":"2026-06-08","_week":2,"Placa":"MWW0506","Apelido":"10","Medição":"3.886.441,59 km","Fornecedor":"Madul Carrocerias","Motivo":"carroceria","Serviço":"Serviço de carroceria","_cat":"Carroceria / Lataria","_total":6092.0,"Custo da mão de obra":6092,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1416","Data de abertura":"05/06/2026","_iso":"2026-06-05","_week":1,"Placa":"EGP0001","Apelido":"E Gas Palmas","Medição":"0 km","Fornecedor":"Brasif Máquinas","Motivo":"cilindro de freio","Serviço":"Troca de cilindro de freio","_cat":"Freios / Motor / Transmissão","_total":960.0,"Custo da mão de obra":960,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1392","Data de abertura":"05/06/2026","_iso":"2026-06-05","_week":1,"Placa":"EGP0001","Apelido":"E Gas Palmas","Medição":"0 km","Fornecedor":"Tropigás","Motivo":"gás","Serviço":"Abastecimento gás ","_cat":"Gás","_total":856.0,"Custo da mão de obra":0,"Subtotal peça":856,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1437","Data de abertura":"04/06/2026","_iso":"2026-06-04","_week":1,"Placa":"RSA9F25","Apelido":"52","Medição":"0 km","Fornecedor":"Borracharia do Junior","Motivo":"serviço de pneu","Serviço":"Serviço de Pneu","_cat":"Pneus / Borracharia","_total":160.0,"Custo da mão de obra":160,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1383","Data de abertura":"04/06/2026","_iso":"2026-06-04","_week":1,"Placa":"RSA9F25","Apelido":"52","Medição":"0 km","Fornecedor":"Pneuaço","Motivo":"pneu","Serviço":"Pneus Recapado","_cat":"Pneus / Borracharia","_total":1400.0,"Custo da mão de obra":0,"Subtotal peça":1400,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1425","Data de abertura":"03/06/2026","_iso":"2026-06-03","_week":1,"Placa":"RSB7A51","Apelido":"21","Medição":"184.655,89 km","Fornecedor":"Ze Comercio de Baterias","Motivo":"máquina de vidro","Serviço":"Reparo máquina de vidro","_cat":"Elétrica / Eletrônica","_total":432.0,"Custo da mão de obra":150,"Subtotal peça":282,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1424","Data de abertura":"03/06/2026","_iso":"2026-06-03","_week":1,"Placa":"EGD0001","Apelido":"E Gas DNO","Medição":"0 km","Fornecedor":"Correa distribuidora de gás","Motivo":"gás","Serviço":"Abastecimento gás ","_cat":"Gás","_total":621.0,"Custo da mão de obra":621,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1434","Data de abertura":"03/06/2026","_iso":"2026-06-03","_week":1,"Placa":"QKJ7925","Apelido":"02","Medição":"261.286,4 km","Fornecedor":"Borracharia do Junior","Motivo":"serviço de pneu","Serviço":"Serviço de Pneu","_cat":"Pneus / Borracharia","_total":80.0,"Custo da mão de obra":80,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1390","Data de abertura":"03/06/2026","_iso":"2026-06-03","_week":1,"Placa":"RMB7E14","Apelido":"104","Medição":"11.871,88 km","Fornecedor":"Tristão pneus","Motivo":"pneu","Serviço":"Pneu / Roda (Diversos)","_cat":"Pneus / Borracharia","_total":822.06,"Custo da mão de obra":0,"Subtotal peça":822.06,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1378","Data de abertura":"03/06/2026","_iso":"2026-06-03","_week":1,"Placa":"MWW0506","Apelido":"10","Medição":"3.885.404,09 km","Fornecedor":"Lourival Borges Marinho","Motivo":"eletrico","Serviço":"Serviço Eletrico","_cat":"Elétrica / Eletrônica","_total":1375.0,"Custo da mão de obra":1375,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1376","Data de abertura":"03/06/2026","_iso":"2026-06-03","_week":1,"Placa":"RMB7E14","Apelido":"104","Medição":"11.355,56 km","Fornecedor":"Tristão pneus","Motivo":"pneu","Serviço":"Substituição de pneus","_cat":"Pneus / Borracharia","_total":822.06,"Custo da mão de obra":0,"Subtotal peça":822.06,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1379","Data de abertura":"01/06/2026","_iso":"2026-06-01","_week":1,"Placa":"QKE7H09","Apelido":"13","Medição":"105.153,46 km","Fornecedor":"Madul Carrocerias","Motivo":"carroceria","Serviço":"Serviço de carroceria","_cat":"Carroceria / Lataria","_total":689.0,"Custo da mão de obra":689,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"},{"Nº O.S.":"#1377","Data de abertura":"01/06/2026","_iso":"2026-06-01","_week":1,"Placa":"EGP0001","Apelido":"E Gas Palmas","Medição":"0 km","Fornecedor":"Gás lar distribuidora","Motivo":"gás","Serviço":"Abastecimento gás ","_cat":"Gás","_total":800.0,"Custo da mão de obra":800,"Subtotal peça":0,"Custos extras":0,"Responsável":"Carlos Mario Ribeiro Coelho"}],
   motivos_qtd:{"SEM DINHEIRO":182,"ESTABELEC FECHADO":25,"DESACORDO NÃO PEDIU":8,"PEDIDO ERRADO":108,"CLIENTE DESISTIU":90,"SEM VASILHAME":164,"DESACORDO C/ PEDIDO":34,"PRODUTO ESTRAGADO":99,"ATRASO ENTREGA":38,"ENDEREÇO N/ ENCONTRADO":31,"FORA DE ROTA":19,"FERIADO MUNICIPAL":6},
   motivos_valor:{"SEM DINHEIRO":156499.25,"ESTABELEC FECHADO":83464.97,"DESACORDO NÃO PEDIU":38909.05,"PEDIDO ERRADO":75092.3,"CLIENTE DESISTIU":68163.17,"SEM VASILHAME":6829.46,"DESACORDO C/ PEDIDO":18394.52,"PRODUTO ESTRAGADO":24742.66,"ATRASO ENTREGA":24094.01,"ENDEREÇO N/ ENCONTRADO":5303.31,"FORA DE ROTA":3999.12,"FERIADO MUNICIPAL":6111.09}
 };
@@ -564,7 +701,11 @@ async function sheetRead(){
 async function sheetSave(){
   if(!hasUrl()) return;
   try{
-    const r=await sheetGet({action:'save',data:D});
+    // As manutenções vêm da Infleet e vivem na aba própria — não são
+    // editadas aqui. Enviá-las no save infla a URL (242 OS ≈ 100k chars)
+    // e estoura o limite de tamanho, quebrando o salvamento.
+    const payload={...D}; delete payload.manutencoes;
+    const r=await sheetGet({action:'save',data:payload});
     if(!r.ok) throw new Error(r.erro);
     setStatus('✓ Salvo no Google Sheets','ok');
   }catch(e){
@@ -671,6 +812,11 @@ function bars(id,labels,sets,opt={}){dc(id);const o={...baseOpt(opt.stacked),ind
 // ═══════════════════════════════════
 function renderDashboard(){
   const M=D.meses;
+  // garante que faturamento_rs exista e tenha o mesmo tamanho dos meses
+  if(!Array.isArray(D.faturamento_rs))D.faturamento_rs=M.map(()=>null);
+  while(D.faturamento_rs.length<M.length)D.faturamento_rs.push(null);
+  if(!Array.isArray(D.dev_valor_mes))D.dev_valor_mes=M.map(()=>null);
+  while(D.dev_valor_mes.length<M.length)D.dev_valor_mes.push(null);
   const distAvg=avg(D.custo_log['Distribuição']),puxAvg=avg(D.custo_log['Puxada']);
   kpi('kpi-custos',[
     {lab:'Custo Médio Distribuição (R$/Hl)',val:'R$ '+distAvg.toFixed(2),dlt:'Jan→Mai: '+((D.custo_log['Distribuição'][4]/D.custo_log['Distribuição'][0]-1)*100).toFixed(0)+'%',cls:'down'},
@@ -686,12 +832,7 @@ function renderDashboard(){
     {lab:'Eficiência Distribuição',val:(sum(D.km['Distribuição'])/sum(D.litros['Distribuição'])).toFixed(2)+' km/L',c:'g'},
     {lab:'Eficiência Puxada',val:(sum(D.km['Puxada'])/sum(D.litros['Puxada'])).toFixed(2)+' km/L'},
   ]);
-  kpi('kpi-dev',[
-    {lab:'% Devolução Média',val:avg(D.dev_pct).toFixed(2)+'%',c:'r'},
-    {lab:'Devoluções Totais',val:num(sum(D.dev_qtd))},
-    {lab:'Pedidos Totais',val:num(sum(D.dev_pedidos)),c:'b'},
-    {lab:'Valor Devolvido',val:brl(sum(Object.values(D.motivos_valor))),c:'r'},
-  ]);
+  renderKpiDev();
   kpi('kpi-dia',[
     {lab:'Diárias/Fretes Palmas',val:brl(sum(D.palmas_total))},
     {lab:'Diárias/Fretes Gpi/Dno',val:brl(sum(D.gpi_total)),c:'b'},
@@ -707,21 +848,368 @@ function renderDashboard(){
   const effD=M.map((_,i)=>+(D.km['Distribuição'][i]/D.litros['Distribuição'][i]).toFixed(2));
   const effP=M.map((_,i)=>+(D.km['Puxada'][i]/D.litros['Puxada'][i]).toFixed(2));
   line('f3',M,[{l:'Distribuição',d:effD,c:C.green,fill:true},{l:'Puxada',d:effP,c:C.amber,fill:true}],f2br);
-  dc('d1');charts['d1']=new Chart(document.getElementById('d1'),{type:'line',data:{labels:["Jan","Fev","Mar","Abr","Mai"],datasets:[{label:'% Devolução',data:D.dev_pct,borderColor:C.red,backgroundColor:C.red+'1f',tension:.35,borderWidth:2.5,pointRadius:4,pointBackgroundColor:C.red,fill:true,datalabels:dlLine(fpct,'#b00000')}]},options:{...baseOpt(),plugins:{legend:{display:false},tooltip:tip,datalabels:dlLine(fpct,'#b00000')},scales:{x:{grid:gridX},y:{grid,ticks:{callback:v=>v+'%'}}}}});
-  dc('d2');charts['d2']=new Chart(document.getElementById('d2'),{type:'bar',data:{labels:["Jan","Fev","Mar","Abr","Mai"],datasets:[{label:'Pedidos',data:D.dev_pedidos,backgroundColor:C.blue,borderRadius:5,maxBarThickness:34,yAxisID:'y',datalabels:dlBar(kfmt)},{type:'line',label:'Devoluções',data:D.dev_qtd,borderColor:C.amber,backgroundColor:C.amber,tension:.35,borderWidth:2.5,pointRadius:3,yAxisID:'y1',datalabels:{...dlLine(fnum,'#006030'),align:'bottom',offset:6}}]},options:{...baseOpt(),scales:{x:{grid:gridX},y:{grid,beginAtZero:true,position:'left'},y1:{grid:gridX,beginAtZero:true,position:'right'}}}});
-  const mk=Object.entries(D.motivos_qtd).sort((a,b)=>b[1]-a[1]);
-  bars('d3',mk.map(x=>x[0]),[{l:'Ocorrências',d:mk.map(x=>x[1]),c:C.amber}],{h:true});
+  renderD1();
+  renderD2();
+  renderD3();
   const mv=Object.entries(D.motivos_valor).sort((a,b)=>b[1]-a[1]);
   const donutCols=['#e10000','#004523','#006030','#2e7d32','#3c8c30','#4f9a3f','#5aa84a','#6bb53f','#7cb342','#9ccc65','#b6d98a','#cfe6b0'];
   dc('d4');charts['d4']=new Chart(document.getElementById('d4'),{type:'doughnut',data:{labels:mv.map(x=>x[0]),datasets:[{data:mv.map(x=>x[1]),backgroundColor:donutCols,borderColor:'#ffffff',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{usePointStyle:true,pointStyle:'circle',boxWidth:8,padding:8,font:{size:10},color:'#15321f'}},tooltip:{...tip,callbacks:{label:c=>' '+c.label+': '+brl(c.raw)}},datalabels:{color:'#ffffff',font:{family:"'SFMono-Regular',monospace",size:9,weight:'700'},formatter:(v,c)=>{const t=c.dataset.data.reduce((s,x)=>s+x,0);return v/t>=0.04?kfmt(v):''}}},cutout:'58%'}});
+  // % de devolução sobre o faturamento (valor devolvido ÷ faturamento em R$)
+  const totDevol=sum(Object.values(D.motivos_valor));
+  const totFat=sum(D.faturamento_rs||[]);
+  const badge=document.getElementById('d4-fatpct');
+  if(badge){
+    if(totFat>0){
+      const pctFat=(totDevol/totFat*100);
+      badge.innerHTML='Devolução sobre faturamento: <b>'+pctFat.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'%</b> &nbsp;·&nbsp; '+brl(totDevol)+' de '+brl(totFat);
+      badge.classList.add('show');
+    } else {
+      badge.classList.remove('show');
+      badge.innerHTML='';
+    }
+  }
   bars('g1',M,[{l:'Palmas',d:D.palmas_total,c:C.amber},{l:'Gurupi/Dianópolis',d:D.gpi_total,c:C.blue}]);
   line('g2',M,[{l:'Palmas',d:D.hosp_palmas_val,c:C.teal},{l:'Gpi/Dno',d:D.hosp_gpi_val,c:C.green}],kfmt);
   dc('g3');charts['g3']=new Chart(document.getElementById('g3'),{type:'bar',data:{labels:M,datasets:[{label:'Palmas',data:D.hosp_palmas_qtd,backgroundColor:C.amber,borderRadius:5,maxBarThickness:46,datalabels:{color:'#fff',font:{family:"'SFMono-Regular',monospace",size:11,weight:'700'},anchor:'center',align:'center',formatter:fnum}},{label:'Gpi/Dno',data:D.hosp_gpi_qtd,backgroundColor:C.teal,borderRadius:5,maxBarThickness:46,datalabels:{color:'#15321f',font:{family:"'SFMono-Regular',monospace",size:11,weight:'700'},anchor:'center',align:'center',formatter:fnum}}]},options:{...baseOpt(true)}});
+  // manutenções
+  if(!Array.isArray(D.manutencoes))D.manutencoes=[];
+  buildCatFilter();
+  renderManutencoes();
 }
 
+// ── Modo Pedido / Valor (R$) das devoluções ───────────────────
+let devMode='pedido';
+function devM(){ return D.meses; }
+
+// KPIs de devolução conforme o modo
+function renderKpiDev(){
+  const M=devM();
+  if(devMode==='valor'){
+    const totFat=sum(D.faturamento_rs||[]);
+    const totDev=sum(D.dev_valor_mes||[]);
+    // % média em valor = devolvido ÷ faturado (do total), se houver faturamento
+    const pct = totFat>0 ? (totDev/totFat*100) : null;
+    kpi('kpi-dev',[
+      {lab:'% Devolução Média (R$)',val: pct==null?'—':pct.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'%',c:'r'},
+      {lab:'Valor Devolvido Total',val: totDev>0?brl(totDev):'—',c:'r'},
+      {lab:'Valor Faturado Total',val: totFat>0?brl(totFat):'—',c:'b'},
+      {lab:'Valor Perdido por Motivo',val:brl(sum(Object.values(D.motivos_valor))),c:'r'},
+    ]);
+  }else{
+    kpi('kpi-dev',[
+      {lab:'% Devolução Média',val:avg(D.dev_pct).toFixed(2)+'%',c:'r'},
+      {lab:'Devoluções Totais',val:num(sum(D.dev_qtd))},
+      {lab:'Pedidos Totais',val:num(sum(D.dev_pedidos)),c:'b'},
+      {lab:'Valor Devolvido',val:brl(sum(Object.values(D.motivos_valor))),c:'r'},
+    ]);
+  }
+}
+
+// Gráfico "% de Devolução por Mês" — em pedido (%) ou em valor (%)
+function renderD1(){
+  const M=devM();
+  const cap=document.querySelector('#devolucoes .grid .card:nth-child(1) .cap');
+  let serie, titulo;
+  if(devMode==='valor'){
+    // % mensal em R$ = valor devolvido do mês ÷ faturado do mês
+    serie=M.map((_,i)=>{
+      const f=(D.faturamento_rs||[])[i], d=(D.dev_valor_mes||[])[i];
+      return (f&&f>0&&d!=null) ? +(d/f*100).toFixed(2) : null;
+    });
+    titulo='Devolvido (R$) ÷ Faturado (R$)';
+  }else{
+    serie=D.dev_pct;
+    titulo='Devoluções ÷ pedidos';
+  }
+  if(cap)cap.textContent=titulo;
+  dc('d1');charts['d1']=new Chart(document.getElementById('d1'),{type:'line',data:{labels:M,datasets:[{label:'% Devolução',data:serie,borderColor:C.red,backgroundColor:C.red+'1f',tension:.35,borderWidth:2.5,pointRadius:4,pointBackgroundColor:C.red,fill:true,spanGaps:true,datalabels:dlLine(fpct,'#b00000')}]},options:{...baseOpt(),plugins:{legend:{display:false},tooltip:tip,datalabels:dlLine(fpct,'#b00000')},scales:{x:{grid:gridX},y:{grid,ticks:{callback:v=>v+'%'}}}}});
+}
+
+// Gráfico "Volume Mensal" — pedidos vs devoluções OU faturado vs devolvido
+function renderD2(){
+  const M=devM();
+  const titEl=document.querySelector('#devolucoes .grid .card:nth-child(2) h3');
+  const capEl=document.querySelector('#devolucoes .grid .card:nth-child(2) .cap');
+  if(devMode==='valor'){
+    if(titEl)titEl.textContent='Valor Total vs Valor Devolvido';
+    if(capEl)capEl.textContent='R$ por mês';
+    dc('d2');charts['d2']=new Chart(document.getElementById('d2'),{type:'bar',data:{labels:M,datasets:[
+      {label:'Valor Faturado',data:D.faturamento_rs||[],backgroundColor:C.blue,borderRadius:5,maxBarThickness:34,yAxisID:'y',datalabels:dlBar(kfmt)},
+      {type:'line',label:'Valor Devolvido',data:D.dev_valor_mes||[],borderColor:C.red,backgroundColor:C.red,tension:.35,borderWidth:2.5,pointRadius:3,spanGaps:true,yAxisID:'y1',datalabels:{...dlLine(kfmt,'#b00000'),align:'bottom',offset:6}}
+    ]},options:{...baseOpt(),scales:{x:{grid:gridX},y:{grid,beginAtZero:true,position:'left'},y1:{grid:gridX,beginAtZero:true,position:'right'}}}});
+  }else{
+    if(titEl)titEl.textContent='Pedidos vs Devoluções';
+    if(capEl)capEl.textContent='Volume mensal';
+    dc('d2');charts['d2']=new Chart(document.getElementById('d2'),{type:'bar',data:{labels:M,datasets:[
+      {label:'Pedidos',data:D.dev_pedidos,backgroundColor:C.blue,borderRadius:5,maxBarThickness:34,yAxisID:'y',datalabels:dlBar(kfmt)},
+      {type:'line',label:'Devoluções',data:D.dev_qtd,borderColor:C.amber,backgroundColor:C.amber,tension:.35,borderWidth:2.5,pointRadius:3,yAxisID:'y1',datalabels:{...dlLine(fnum,'#006030'),align:'bottom',offset:6}}
+    ]},options:{...baseOpt(),scales:{x:{grid:gridX},y:{grid,beginAtZero:true,position:'left'},y1:{grid:gridX,beginAtZero:true,position:'right'}}}});
+  }
+}
+
+// alterna o modo e re-renderiza os três cards
+document.querySelectorAll('#dev-mode .ut-btn').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#dev-mode .ut-btn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active'); devMode=b.dataset.m;
+  renderKpiDev(); renderD1(); renderD2();
+});
+
+let d3Unit='qtd';
+function renderD3(){
+  if(d3Unit==='rs'){
+    const mv=Object.entries(D.motivos_valor).sort((a,b)=>b[1]-a[1]);
+    bars('d3',mv.map(x=>x[0]),[{l:'Valor (R$)',d:mv.map(x=>x[1]),c:C.red}],{h:true,fmt:kfmt});
+    const cap=document.getElementById('d3-cap');if(cap)cap.textContent='Valor perdido (R$)';
+  }else{
+    const mk=Object.entries(D.motivos_qtd).sort((a,b)=>b[1]-a[1]);
+    bars('d3',mk.map(x=>x[0]),[{l:'Ocorrências',d:mk.map(x=>x[1]),c:C.amber}],{h:true});
+    const cap=document.getElementById('d3-cap');if(cap)cap.textContent='Quantidade de ocorrências';
+  }
+}
+document.querySelectorAll('#d3-toggle .ut-btn').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#d3-toggle .ut-btn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');d3Unit=b.dataset.u;renderD3();
+});
+
 // ═══════════════════════════════════
-// MODAIS GENÉRICOS
 // ═══════════════════════════════════
+// MANUTENÇÕES
+// ═══════════════════════════════════
+let mntWeek='all', mntCat='all', mntSort={k:'tot',dir:-1};
+const MNT_PAL=['#006030','#3c8c30','#7cb342','#e10000','#2e7d32','#9ccc65','#5aa84a','#b6d98a','#56753c','#cfe6b0'];
+const brl2=n=>n==null?'—':n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+function mntList(){ return Array.isArray(D.manutencoes)?D.manutencoes:[]; }
+function mntFilt(){
+  return mntList().filter(r=>(mntWeek==='all'||String(r._week)===String(mntWeek))
+    &&(mntCat==='all'||r._cat===mntCat));
+}
+function buildCatFilter(){
+  const sel=document.getElementById('mnt-cat'); if(!sel)return;
+  const cur=sel.value||'all';
+  const cats=[...new Set(mntList().map(r=>r._cat).filter(Boolean))].sort();
+  sel.innerHTML='<option value="all">Todas as categorias</option>'
+    +cats.map(c=>`<option value="${c}">${c}</option>`).join('');
+  sel.value=cats.includes(cur)?cur:'all';
+  mntCat=sel.value;
+}
+
+function renderManutencoes(){
+  const rows=mntFilt();
+  const total=rows.reduce((s,r)=>s+(r._total||0),0);
+  const nos=rows.length;
+  const veics=new Set(rows.map(r=>r.Placa));
+  const media=nos?total/nos:0;
+
+  // agrupamento por veículo
+  const byV={};
+  rows.forEach(r=>{
+    const p=r.Placa||'—';
+    byV[p]=byV[p]||{os:0,g:0,ap:r.Apelido||''};
+    byV[p].os++; byV[p].g+=(r._total||0);
+  });
+  const topGasto=Object.entries(byV).sort((a,b)=>b[1].g-a[1].g)[0];
+
+  kpi('kpi-mnt',[
+    {lab:'Gasto Total',val:brl(total),c:'r'},
+    {lab:'Ordens de Serviço',val:num(nos),c:'b'},
+    {lab:'Veículos Atendidos',val:num(veics.size),c:'t'},
+    {lab:'Custo Médio / OS',val:brl(media),c:'g'},
+    {lab:'Maior Gasto',val:topGasto?topGasto[0]+' · '+brl(topGasto[1].g):'—'},
+  ]);
+
+  // gasto por categoria (rosca)
+  const byC={}; rows.forEach(r=>{byC[r._cat]=(byC[r._cat]||0)+(r._total||0);});
+  const cE=Object.entries(byC).sort((a,b)=>b[1]-a[1]);
+  dc('m1');
+  charts['m1']=new Chart(document.getElementById('m1'),{type:'doughnut',
+    data:{labels:cE.map(e=>e[0]),datasets:[{data:cE.map(e=>e[1]),backgroundColor:MNT_PAL,borderColor:'#fff',borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{
+      legend:{position:'right',labels:{usePointStyle:true,pointStyle:'circle',boxWidth:8,padding:8,font:{size:10},color:'#15321f'}},
+      tooltip:{...tip,callbacks:{label:c=>' '+c.label+': '+brl(c.raw)}},
+      datalabels:{color:'#fff',font:{family:"'SFMono-Regular',monospace",size:9,weight:'700'},
+        formatter:(v,c)=>{const t=c.dataset.data.reduce((s,x)=>s+x,0);return t&&v/t>=0.05?kfmt(v):''}}
+    },cutout:'58%'}});
+
+  // OS por semana (respeita filtro de categoria, ignora o de semana p/ dar contexto)
+  const wk={1:0,2:0,3:0,4:0,5:0};
+  mntList().filter(r=>mntCat==='all'||r._cat===mntCat).forEach(r=>{if(wk[r._week]!=null)wk[r._week]++;});
+  bars('m2',['Sem 1','Sem 2','Sem 3','Sem 4','Sem 5'],
+    [{l:'Ordens de Serviço',d:[wk[1],wk[2],wk[3],wk[4],wk[5]],c:C.amber}],{fmt:fnum});
+
+  // top 12 veículos por gasto (barra horizontal)
+  const vg=Object.entries(byV).sort((a,b)=>b[1].g-a[1].g).slice(0,12);
+  bars('m3',vg.map(e=>e[0]+(e[1].ap?' ('+e[1].ap+')':'')),
+    [{l:'Gasto (R$)',d:vg.map(e=>e[1].g),c:C.leaf||'#3c8c30'}],{h:true,fmt:kfmt});
+
+  renderVeicTable(byV);
+  renderFornTable(rows);
+  renderAllMnt(rows);
+}
+
+function renderVeicTable(byV){
+  const tb=document.querySelector('#t-veic tbody'); if(!tb)return;
+  const arr=Object.entries(byV).sort((a,b)=>b[1].os-a[1].os||b[1].g-a[1].g);
+  const maxOs=Math.max(...arr.map(e=>e[1].os),1);
+  tb.innerHTML=arr.length?arr.map(([p,v])=>
+    `<tr><td>${p} ${v.ap?`<span class="tag">${v.ap}</span>`:''}</td>`+
+    `<td class="num"><span class="minibar" style="width:${8+40*v.os/maxOs}px"></span>${v.os}</td>`+
+    `<td class="num">${brl(v.g)}</td></tr>`).join('')
+    :'<tr><td colspan="3" style="text-align:center;color:var(--muted);padding:18px">Sem registros</td></tr>';
+}
+
+function renderFornTable(rows){
+  const tb=document.querySelector('#t-forn tbody'); if(!tb)return;
+  const bf={};
+  rows.forEach(r=>{const f=r.Fornecedor||'—';bf[f]=bf[f]||{os:0,g:0};bf[f].os++;bf[f].g+=(r._total||0);});
+  const arr=Object.entries(bf).sort((a,b)=>b[1].g-a[1].g);
+  tb.innerHTML=arr.length?arr.map(([f,v])=>
+    `<tr><td>${f}</td><td class="num">${v.os}</td><td class="num">${brl(v.g)}</td></tr>`).join('')
+    :'<tr><td colspan="3" style="text-align:center;color:var(--muted);padding:18px">Sem registros</td></tr>';
+}
+
+function renderAllMnt(rows){
+  const cnt=document.getElementById('mnt-cnt');
+  if(cnt)cnt.textContent=rows.length+' registro'+(rows.length===1?'':'s');
+  const tb=document.querySelector('#t-all tbody'); if(!tb)return;
+  const km={os:'Nº O.S.',data:'_iso',placa:'Placa',apelido:'Apelido',cat:'_cat',serv:'Serviço',forn:'Fornecedor',tot:'_total'};
+  const k=km[mntSort.k]||'_total';
+  const sorted=[...rows].sort((a,b)=>{
+    const x=a[k],y=b[k];
+    if(typeof x==='number'&&typeof y==='number')return (x-y)*mntSort.dir;
+    return String(x??'').localeCompare(String(y??''),'pt-BR')*mntSort.dir;
+  });
+  tb.innerHTML=sorted.length?sorted.map(r=>{
+    const serv=(r['Serviço']&&r['Serviço']!=='--')?r['Serviço']:(r.Motivo||'—');
+    return `<tr><td>${r['Nº O.S.']||'—'}</td><td>${r['Data de abertura']||'—'}</td>`+
+      `<td>${r.Placa||'—'}</td><td>${r.Apelido||'—'}</td>`+
+      `<td><span class="tag">${r._cat||'—'}</span></td><td>${serv}</td>`+
+      `<td>${r.Fornecedor||'—'}</td><td class="num">${brl2(r._total||0)}</td></tr>`;
+  }).join('')
+    :'<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:18px">Sem registros</td></tr>';
+}
+
+// listeners dos filtros de manutenção
+document.querySelectorAll('.mnt-fbtn').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.mnt-fbtn').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active'); mntWeek=b.dataset.w; renderManutencoes();
+});
+document.addEventListener('change',e=>{
+  if(e.target&&e.target.id==='mnt-cat'){mntCat=e.target.value;renderManutencoes();}
+});
+document.querySelectorAll('#t-all th[data-s]').forEach(th=>th.onclick=()=>{
+  const k=th.dataset.s;
+  mntSort.dir=(mntSort.k===k)?-mntSort.dir:-1;
+  mntSort.k=k;
+  renderAllMnt(mntFilt());
+});
+
+// ── editor de manutenções ──────────────────────────────────────
+const MNT_CATS=['Revisão / Lubrificação','Freios / Motor / Transmissão','Pneus / Borracharia',
+  'Elétrica / Eletrônica','Suspensão','Carroceria / Lataria','Guincho / Socorro','Gás','Outros'];
+
+// dd/mm/aaaa -> {iso, week}
+function parseMntDate(br){
+  const m=/^(\d{2})\/(\d{2})\/(\d{4})$/.exec((br||'').trim());
+  if(!m)return{iso:'',week:null};
+  const [_,d,mo,y]=m;
+  const dia=parseInt(d,10);
+  let week=Math.floor((dia-1)/7)+1;      // 1-7→1, 8-14→2, 15-21→3, 22-28→4
+  if(week>5)week=5;
+  if(dia>=29)week=5;                      // 29,30,31 → semana 5
+  return{iso:`${y}-${mo}-${d}`,week};
+}
+function recalcMnt(r){
+  const {iso,week}=parseMntDate(r['Data de abertura']);
+  r._iso=iso; r._week=week;
+  const mo=parseFloat(r['Custo da mão de obra'])||0;
+  const pc=parseFloat(r['Subtotal peça'])||0;
+  const ex=parseFloat(r['Custos extras'])||0;
+  r._total=+(mo+pc+ex).toFixed(2);
+  return r;
+}
+
+function buildMntEditor(){
+  const box=document.getElementById('rows-mnt'); if(!box)return;
+  box.innerHTML='';
+  if(!Array.isArray(D.manutencoes))D.manutencoes=[];
+
+  const head=document.createElement('div');
+  head.className='mnt-ehead';
+  head.innerHTML=['Nº O.S.','Data','Placa','Apelido','Categoria','Serviço / Motivo','Fornecedor','Total (R$)','']
+    .map(h=>`<span>${h}</span>`).join('');
+  box.appendChild(head);
+
+  D.manutencoes.forEach((r,idx)=>{
+    const row=document.createElement('div');
+    row.className='mnt-erow';
+
+    const mk=(val,onIn,cls='')=>{
+      const i=document.createElement('input');
+      i.type='text'; i.value=val??''; i.className=cls;
+      i.addEventListener('input',function(){this.classList.add('changed');onIn(this.value);});
+      return i;
+    };
+
+    row.appendChild(mk(r['Nº O.S.'],v=>{r['Nº O.S.']=v;}));
+
+    // data — recalcula semana/iso
+    const dt=mk(r['Data de abertura'],v=>{r['Data de abertura']=v;recalcMnt(r);});
+    dt.placeholder='dd/mm/aaaa';
+    row.appendChild(dt);
+
+    row.appendChild(mk(r.Placa,v=>{r.Placa=v;}));
+    row.appendChild(mk(r.Apelido,v=>{r.Apelido=v;}));
+
+    // categoria
+    const sel=document.createElement('select');
+    const cats=[...new Set([...MNT_CATS,...(r._cat?[r._cat]:[])])];
+    sel.innerHTML=cats.map(c=>`<option value="${c}">${c}</option>`).join('');
+    sel.value=r._cat||'Outros';
+    sel.addEventListener('change',function(){this.classList.add('changed');r._cat=this.value;});
+    row.appendChild(sel);
+
+    // serviço (cai para Motivo quando vazio)
+    const sv=mk((r['Serviço']&&r['Serviço']!=='--')?r['Serviço']:(r.Motivo||''),v=>{r['Serviço']=v;});
+    row.appendChild(sv);
+
+    row.appendChild(mk(r.Fornecedor,v=>{r.Fornecedor=v;}));
+
+    // total — editável direto; sobrescreve a soma dos componentes
+    const tot=document.createElement('input');
+    tot.type='number'; tot.step='any'; tot.className='num';
+    tot.value=r._total??0;
+    tot.addEventListener('input',function(){
+      this.classList.add('changed');
+      r._total=parseFloat(this.value)||0;
+      // total manual: zera componentes p/ não conflitar no recálculo
+      r['Custo da mão de obra']=0; r['Subtotal peça']=r._total; r['Custos extras']=0;
+    });
+    row.appendChild(tot);
+
+    const del=document.createElement('button');
+    del.className='mnt-del'; del.textContent='×'; del.title='Remover esta OS';
+    del.onclick=()=>{D.manutencoes.splice(idx,1);buildMntEditor();};
+    row.appendChild(del);
+
+    box.appendChild(row);
+  });
+
+  const c=document.getElementById('mnt-edit-cnt');
+  if(c)c.textContent=D.manutencoes.length+' registro'+(D.manutencoes.length===1?'':'s');
+}
+
+function addMntRow(){
+  if(!Array.isArray(D.manutencoes))D.manutencoes=[];
+  D.manutencoes.unshift(recalcMnt({
+    'Nº O.S.':'','Data de abertura':'','Placa':'','Apelido':'','Medição':'',
+    'Fornecedor':'','Motivo':'','Serviço':'','_cat':'Outros',
+    'Custo da mão de obra':0,'Subtotal peça':0,'Custos extras':0,'Responsável':''
+  }));
+  buildMntEditor();
+  document.querySelector('#rows-mnt .mnt-erow input')?.focus();
+}
+
 function openEditModal(){ buildModalForms(); document.getElementById('edit-overlay').classList.add('open'); document.body.style.overflow='hidden'; }
 function openExportModal(){
   document.getElementById('export-overlay').classList.add('open');
@@ -753,17 +1241,34 @@ document.querySelectorAll('#tabs button').forEach(b=>b.onclick=e=>{
 function makeMonthRow(containerId,rowLabel,dataArray,onChange){
   const row=document.createElement('div');row.className='month-row';
   row.innerHTML=`<span class="row-label">${rowLabel}</span>`;
+  const box=document.createElement('div');box.className='mr-inputs';
+  box.style.setProperty('--nm',(D.meses||dataArray).length||dataArray.length);
   dataArray.forEach((val,i)=>{
     const inp=document.createElement('input');inp.type='number';inp.step='any';
     inp.value=val!==null?val:'';inp.placeholder=val===null?'N/A':'';
     inp.addEventListener('input',function(){this.classList.add('changed');onChange(i,this.value===''?null:parseFloat(this.value));});
-    row.appendChild(inp);
+    box.appendChild(inp);
   });
+  row.appendChild(box);
   document.getElementById(containerId).appendChild(row);
 }
 
+// Preenche os cabeçalhos de mês dinamicamente e ajusta o nº de colunas (--nm)
+const MES_ABREV={'Janeiro':'Jan','Fevereiro':'Fev','Março':'Mar','Abril':'Abr','Maio':'Mai','Junho':'Jun','Julho':'Jul','Agosto':'Ago','Setembro':'Set','Outubro':'Out','Novembro':'Nov','Dezembro':'Dez'};
+function preencherCabecalhosMes(){
+  const meses=(D.meses||[]).map(m=>MES_ABREV[m]||String(m).slice(0,3));
+  const n=meses.length||5;
+  document.querySelectorAll('.month-headers .js-mh').forEach(el=>{
+    el.style.setProperty('--nm',n);
+    el.innerHTML=meses.map(m=>`<span>${m}</span>`).join('');
+  });
+  // aplica o nº de colunas às linhas de input também
+  document.querySelectorAll('.month-row .mr-inputs').forEach(el=>el.style.setProperty('--nm',n));
+}
+
 function buildModalForms(){
-  ['rows-custo-log','rows-despesas','rows-fob','rows-fat','rows-litros','rows-km','rows-dev','rows-motivos','rows-fretes','rows-hosp-val','rows-hosp-qtd']
+  preencherCabecalhosMes();
+  ['rows-custo-log','rows-despesas','rows-fob','rows-fat','rows-litros','rows-km','rows-dev','rows-fatrs','rows-motivos','rows-fretes','rows-hosp-val','rows-hosp-qtd']
     .forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='';});
   Object.keys(D.custo_log).forEach(m=>makeMonthRow('rows-custo-log',m,D.custo_log[m],(i,v)=>{D.custo_log[m][i]=v;}));
   Object.keys(D.despesas).forEach(m=>makeMonthRow('rows-despesas',m,D.despesas[m],(i,v)=>{D.despesas[m][i]=v;}));
@@ -777,6 +1282,10 @@ function buildModalForms(){
   makeMonthRow('rows-dev','Pedidos',D.dev_pedidos,(i,v)=>{D.dev_pedidos[i]=v;});
   makeMonthRow('rows-dev','Devoluções',D.dev_qtd,(i,v)=>{D.dev_qtd[i]=v;});
   makeMonthRow('rows-dev','% Devolução',D.dev_pct,(i,v)=>{D.dev_pct[i]=v;});
+  if(!D.faturamento_rs)D.faturamento_rs=D.meses.map(()=>null);
+  makeMonthRow('rows-fatrs','Faturamento (R$)',D.faturamento_rs,(i,v)=>{D.faturamento_rs[i]=v;});
+  if(!D.dev_valor_mes)D.dev_valor_mes=D.meses.map(()=>null);
+  makeMonthRow('rows-fatrs','Valor Devolvido (R$)',D.dev_valor_mes,(i,v)=>{D.dev_valor_mes[i]=v;});
   const mc=document.getElementById('rows-motivos');
   Object.keys(D.motivos_qtd).forEach(mot=>{
     const row=document.createElement('div');row.className='motivo-row';
@@ -794,6 +1303,7 @@ function buildModalForms(){
   makeMonthRow('rows-hosp-val','Gpi/Dno',D.hosp_gpi_val,(i,v)=>{D.hosp_gpi_val[i]=v;});
   makeMonthRow('rows-hosp-qtd','Palmas',D.hosp_palmas_qtd,(i,v)=>{D.hosp_palmas_qtd[i]=v;});
   makeMonthRow('rows-hosp-qtd','Gpi/Dno',D.hosp_gpi_qtd,(i,v)=>{D.hosp_gpi_qtd[i]=v;});
+  buildMntEditor();
 }
 
 function applyChanges(){
@@ -886,6 +1396,8 @@ function buildAddMonthForms(mes){
   amInput('am-rows-dev','Pedidos','dev_pedidos');
   amInput('am-rows-dev','Devoluções','dev_qtd');
   amInput('am-rows-dev','% Devolução','dev_pct');
+  amInput('am-rows-dev','Faturamento (R$)','faturamento_rs');
+  amInput('am-rows-dev','Valor Devolvido (R$)','dev_valor_mes');
 
   // Motivos — apenas quantidade e valor (sem colunas mensais)
   const mc=document.getElementById('am-rows-motivos');
@@ -951,6 +1463,10 @@ function confirmAddMonth(){
   D.dev_pedidos.push(AM['dev_pedidos']??null);
   D.dev_qtd.push(AM['dev_qtd']??null);
   D.dev_pct.push(AM['dev_pct']??null);
+  if(!D.faturamento_rs)D.faturamento_rs=[];
+  D.faturamento_rs.push(AM['faturamento_rs']??null);
+  if(!D.dev_valor_mes)D.dev_valor_mes=[];
+  D.dev_valor_mes.push(AM['dev_valor_mes']??null);
   // Motivos (substitui acumulado, não é mensal)
   Object.keys(D.motivos_qtd).forEach(mot=>{
     D.motivos_qtd[mot]=AM['mq__'+mot]??D.motivos_qtd[mot];
@@ -1029,14 +1545,21 @@ function exportarExcel(){
   if(document.getElementById('ex-dev').checked){
     const ws3=XLSX.utils.aoa_to_sheet([
       ['Volume Mensal'],
-      ['Série','Jan','Fev','Mar','Abr','Mai'],
+      ['Série',...D.meses],
       ['Pedidos',...D.dev_pedidos],
       ['Devoluções',...D.dev_qtd],
       ['% Devolução',...D.dev_pct],
+      ['Faturamento (R$)',...(D.faturamento_rs||[])],
+      ['Valor Devolvido (R$)',...(D.dev_valor_mes||[])],
       [],
       ['Motivos de Devolução'],
       ['Motivo','Qtd Ocorrências','Valor (R$)'],
       ...Object.keys(D.motivos_qtd).map(k=>[k,D.motivos_qtd[k],D.motivos_valor[k]]),
+      [],
+      ['Valor Devolvido Total — motivos (R$)',sum(Object.values(D.motivos_valor))],
+      ['Valor Devolvido Total — mensal (R$)',sum(D.dev_valor_mes||[])],
+      ['Faturamento Total (R$)',sum(D.faturamento_rs||[])],
+      ['% Devolução s/ Faturamento',(sum(D.faturamento_rs||[])>0?+(sum(D.dev_valor_mes||[])/sum(D.faturamento_rs)*100).toFixed(2):'—')],
     ]);
     XLSX.utils.book_append_sheet(wb,ws3,'Devoluções');
   }
@@ -1059,6 +1582,55 @@ function exportarExcel(){
       ['Gpi/Dno',...D.hosp_gpi_qtd],
     ]);
     XLSX.utils.book_append_sheet(wb,ws4,'Diárias');
+  }
+
+  const exMnt=document.getElementById('ex-mnt');
+  if(exMnt&&exMnt.checked){
+    const mnt=Array.isArray(D.manutencoes)?D.manutencoes:[];
+    // resumo por veículo
+    const byV={};
+    mnt.forEach(r=>{const p=r.Placa||'—';byV[p]=byV[p]||{os:0,g:0,ap:r.Apelido||''};byV[p].os++;byV[p].g+=(r._total||0);});
+    // resumo por fornecedor
+    const byF={};
+    mnt.forEach(r=>{const f=r.Fornecedor||'—';byF[f]=byF[f]||{os:0,g:0};byF[f].os++;byF[f].g+=(r._total||0);});
+    // resumo por categoria
+    const byC={};
+    mnt.forEach(r=>{const c=r._cat||'—';byC[c]=byC[c]||{os:0,g:0};byC[c].os++;byC[c].g+=(r._total||0);});
+    const totG=mnt.reduce((s,r)=>s+(r._total||0),0);
+
+    const ws5=XLSX.utils.aoa_to_sheet([
+      ['Resumo'],
+      ['Gasto Total (R$)',+totG.toFixed(2)],
+      ['Ordens de Serviço',mnt.length],
+      ['Veículos Atendidos',Object.keys(byV).length],
+      ['Custo Médio por OS (R$)',mnt.length?+(totG/mnt.length).toFixed(2):0],
+      [],
+      ['Gasto por Categoria'],
+      ['Categoria','OS','Gasto (R$)'],
+      ...Object.entries(byC).sort((a,b)=>b[1].g-a[1].g).map(([k,v])=>[k,v.os,+v.g.toFixed(2)]),
+      [],
+      ['Gasto por Veículo'],
+      ['Placa','Apelido','OS','Gasto (R$)'],
+      ...Object.entries(byV).sort((a,b)=>b[1].g-a[1].g).map(([k,v])=>[k,v.ap,v.os,+v.g.toFixed(2)]),
+      [],
+      ['Gasto por Fornecedor'],
+      ['Fornecedor','OS','Gasto (R$)'],
+      ...Object.entries(byF).sort((a,b)=>b[1].g-a[1].g).map(([k,v])=>[k,v.os,+v.g.toFixed(2)]),
+      [],
+      ['Todas as Ordens de Serviço'],
+      ['Nº O.S.','Data','Semana','Placa','Apelido','Categoria','Serviço / Motivo','Fornecedor','Mão de obra','Peças','Extras','Total (R$)'],
+      ...mnt.map(r=>[
+        r['Nº O.S.']||'', r['Data de abertura']||'', r._week??'',
+        r.Placa||'', r.Apelido||'', r._cat||'',
+        (r['Serviço']&&r['Serviço']!=='--')?r['Serviço']:(r.Motivo||''),
+        r.Fornecedor||'',
+        +(parseFloat(r['Custo da mão de obra'])||0).toFixed(2),
+        +(parseFloat(r['Subtotal peça'])||0).toFixed(2),
+        +(parseFloat(r['Custos extras'])||0).toFixed(2),
+        +(r._total||0).toFixed(2),
+      ]),
+    ]);
+    XLSX.utils.book_append_sheet(wb,ws5,'Manutenções');
   }
 
   if(!wb.SheetNames.length){alert('Selecione ao menos uma aba para exportar.');return;}
@@ -1084,7 +1656,7 @@ function updateEyebrow(){
   if(hasUrl()){
     setStatus('⏳ Carregando dados do Google Sheets…','loading');
     try{
-      const r=await sheetFetch('GET');
+      const r=await sheetGet({action:'read'});
       if(r.ok&&r.data){
         D=r.data;
         updateEyebrow();
