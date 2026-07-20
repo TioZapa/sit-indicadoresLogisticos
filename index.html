@@ -176,11 +176,36 @@
   .mnt-filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
   .mnt-flabel{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.06em;
     text-transform:uppercase;color:var(--muted)}
-  .mnt-fbtn{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.04em;
-    background:var(--panel);color:var(--olive);border:1px solid var(--line);border-radius:6px;
-    padding:7px 12px;cursor:pointer;transition:.15s}
-  .mnt-fbtn:hover{color:var(--fenix);border-color:var(--leaf)}
-  .mnt-fbtn.active{background:var(--fenix);color:#fff;border-color:var(--fenix)}
+  /* multisseleção de meses */
+  .ms-wrap{position:relative;display:inline-block}
+  .ms-btn{font-family:var(--mono);font-size:10px;font-weight:700;background:var(--panel);
+    color:var(--fenix);border:1px solid var(--line);border-radius:6px;padding:7px 10px;cursor:pointer;
+    outline:none;transition:.15s;white-space:nowrap}
+  .ms-btn:hover{border-color:var(--leaf)}
+  .ms-btn.on{background:var(--fenix);color:#fff;border-color:var(--fenix)}
+  .ms-pop{display:none;position:absolute;top:calc(100% + 4px);left:0;z-index:60;
+    background:var(--panel);border:1px solid var(--line);border-radius:8px;
+    box-shadow:0 8px 26px rgba(0,0,0,.13);padding:6px;min-width:172px;max-height:260px;overflow:auto}
+  .ms-pop.open{display:block}
+  .ms-opt{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;
+    color:var(--ink);padding:6px 8px;border-radius:5px;cursor:pointer;user-select:none}
+  .ms-opt:hover{background:var(--panel2)}
+  .ms-opt input{margin:0;cursor:pointer;accent-color:var(--fenix)}
+  .ms-sep{height:1px;background:var(--line);margin:4px 2px}
+
+  /* chip do filtro aplicado por clique no gráfico */
+  .drill-chip{display:none;align-items:center;gap:7px;font-family:var(--mono);font-size:10px;
+    font-weight:700;background:#eef5ea;color:var(--fenix);border:1px solid var(--leaf);
+    border-radius:20px;padding:5px 8px 5px 11px}
+  .drill-chip.show{display:inline-flex}
+  .drill-chip button{background:none;border:none;color:var(--fenix);cursor:pointer;
+    font-size:13px;line-height:1;padding:0 2px}
+  .drill-chip button:hover{color:var(--spark)}
+  canvas.clickable{cursor:pointer}
+  .dtbl tr.row-click{cursor:pointer}
+  .dtbl tr.row-sel{background:#eef5ea;box-shadow:inset 3px 0 0 var(--fenix)}
+  .dtbl tr.row-sel td{font-weight:700;color:var(--fenix)}
+
   #mnt-cat{font-family:var(--mono);font-size:10px;font-weight:600;background:var(--panel);
     color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:7px 10px;cursor:pointer;outline:none}
   #mnt-cat:focus{border-color:var(--fenix)}
@@ -374,13 +399,12 @@
     <div class="kpis" id="kpi-mnt"></div>
     <div class="mnt-filters">
       <span class="mnt-flabel">Período:</span>
-      <button class="mnt-fbtn active" data-w="all">Junho inteiro</button>
-      <button class="mnt-fbtn" data-w="1">Semana 1 (01–07)</button>
-      <button class="mnt-fbtn" data-w="2">Semana 2 (08–14)</button>
-      <button class="mnt-fbtn" data-w="3">Semana 3 (15–21)</button>
-      <button class="mnt-fbtn" data-w="4">Semana 4 (22–28)</button>
-      <button class="mnt-fbtn" data-w="5">Semana 5 (29–30)</button>
+      <div class="ms-wrap">
+        <button type="button" class="ms-btn" id="mnt-meses-btn">Todo o período ▾</button>
+        <div class="ms-pop" id="mnt-meses-pop"></div>
+      </div>
       <select id="mnt-cat"><option value="all">Todas as categorias</option></select>
+      <span class="drill-chip" id="mnt-drill"><span id="mnt-drill-txt"></span><button type="button" onclick="limparDrill()" title="Remover filtro">✕</button></span>
     </div>
     <div class="grid">
       <div class="card"><h3>Gasto por Categoria de Serviço</h3><div class="cap">R$ · participação no total</div><div class="chart-box tall"><canvas id="m1"></canvas></div></div>
@@ -656,7 +680,7 @@ const DEFAULT={
 // GOOGLE SHEETS — configuração
 // ═══════════════════════════════════
 const LS_URL_KEY='fenix_sheets_url';
-const DEFAULT_SHEETS_URL='https://script.google.com/macros/s/AKfycbwJKDtDMqkvn-EOnNGavFAFZJDj5DO5o3_By5bfJAQLoeHE03Jlcms6lucsclWkOdwr/exec';
+const DEFAULT_SHEETS_URL='https://script.google.com/macros/s/AKfycbwDdMiYs2rIeSWVVtPmDiHMsxFxreCdEc2vVUNGXSMcq7GQPjD3wNVREGlDjDuubWLh/exec';
 let SHEETS_URL=localStorage.getItem(LS_URL_KEY)||DEFAULT_SHEETS_URL;
 
 function getUrl(){ return SHEETS_URL.trim(); }
@@ -805,7 +829,7 @@ const baseOpt=(stacked=false)=>({responsive:true,maintainAspectRatio:false,inter
 
 function dc(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
 function line(id,labels,sets,fmt){dc(id);const o=baseOpt();charts[id]=new Chart(document.getElementById(id),{type:'line',data:{labels,datasets:sets.map(s=>({label:s.l,data:s.d,borderColor:s.c,backgroundColor:s.c+'22',tension:.35,borderWidth:2.5,pointRadius:3,pointBackgroundColor:s.c,fill:s.fill||false,spanGaps:true,datalabels:dlLine(fmt||kfmt,s.c)}))},options:o});}
-function bars(id,labels,sets,opt={}){dc(id);const o={...baseOpt(opt.stacked),indexAxis:opt.h?'y':'x'};charts[id]=new Chart(document.getElementById(id),{type:'bar',data:{labels,datasets:sets.map(s=>({label:s.l,data:s.d,backgroundColor:s.c,borderRadius:5,maxBarThickness:38,datalabels:opt.h?dlBarH(opt.fmt||fnum):dlBar(opt.fmt||kfmt)}))},options:o});}
+function bars(id,labels,sets,opt={}){dc(id);const o={...baseOpt(opt.stacked),indexAxis:opt.h?'y':'x'};if(opt.onClick)o.onClick=opt.onClick;charts[id]=new Chart(document.getElementById(id),{type:'bar',data:{labels,datasets:sets.map(s=>({label:s.l,data:s.d,backgroundColor:s.c,borderRadius:5,maxBarThickness:38,datalabels:opt.h?dlBarH(opt.fmt||fnum):dlBar(opt.fmt||kfmt)}))},options:o});}
 
 // ═══════════════════════════════════
 // RENDER DASHBOARD
@@ -874,6 +898,7 @@ function renderDashboard(){
   // manutenções
   if(!Array.isArray(D.manutencoes))D.manutencoes=[];
   buildCatFilter();
+  buildMesFilter();
   renderManutencoes();
 }
 
@@ -975,15 +1000,96 @@ document.querySelectorAll('#d3-toggle .ut-btn').forEach(b=>b.onclick=()=>{
 // ═══════════════════════════════════
 // MANUTENÇÕES
 // ═══════════════════════════════════
-let mntWeek='all', mntCat='all', mntSort={k:'tot',dir:-1};
+let mntMeses=new Set(), mntCat='all', mntSort={k:'tot',dir:-1};
+// filtro aplicado por clique num gráfico: {tipo:'cat'|'veic', valor:'...'}
+let mntDrill=null;
+const MES_NOME=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+// extrai o mês (YYYY-MM) de um registro, do _iso ou da data dd/mm/aaaa
+function mntMesDe(r){
+  if(r._iso && /^\d{4}-\d{2}/.test(r._iso)) return r._iso.slice(0,7);
+  const m=/^(\d{2})\/(\d{2})\/(\d{4})$/.exec(String(r['Data de abertura']||'').trim());
+  return m ? m[3]+'-'+m[2] : '';
+}
+function mntMesLabel(ym){
+  const [a,m]=ym.split('-');
+  return (MES_NOME[parseInt(m,10)-1]||m)+'/'+a;
+}
 const MNT_PAL=['#006030','#3c8c30','#7cb342','#e10000','#2e7d32','#9ccc65','#5aa84a','#b6d98a','#56753c','#cfe6b0'];
 const brl2=n=>n==null?'—':n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 
 function mntList(){ return Array.isArray(D.manutencoes)?D.manutencoes:[]; }
 function mntFilt(){
-  return mntList().filter(r=>(mntWeek==='all'||String(r._week)===String(mntWeek))
-    &&(mntCat==='all'||r._cat===mntCat));
+  return mntList().filter(r=>{
+    if(mntMeses.size && !mntMeses.has(mntMesDe(r))) return false;
+    if(mntCat!=='all' && r._cat!==mntCat) return false;
+    if(mntDrill){
+      if(mntDrill.tipo==='cat'  && r._cat!==mntDrill.valor) return false;
+      if(mntDrill.tipo==='veic' && (r.Placa||'—')!==mntDrill.valor) return false;
+    }
+    return true;
+  });
 }
+// monta os botões de mês a partir dos meses realmente presentes nos dados
+function buildMesFilter(){
+  const pop=document.getElementById('mnt-meses-pop'); if(!pop)return;
+  const meses=[...new Set(mntList().map(mntMesDe).filter(Boolean))].sort();
+  // descarta seleções de meses que não existem mais
+  [...mntMeses].forEach(m=>{ if(!meses.includes(m)) mntMeses.delete(m); });
+
+  pop.innerHTML=
+    `<label class="ms-opt"><input type="checkbox" id="ms-todos" ${mntMeses.size===0?'checked':''}> Todo o período</label>`
+    +`<div class="ms-sep"></div>`
+    +meses.map(m=>`<label class="ms-opt"><input type="checkbox" class="ms-mes" value="${m}" ${mntMeses.has(m)?'checked':''}> ${mntMesLabel(m)}</label>`).join('');
+
+  pop.querySelector('#ms-todos').onchange=e=>{
+    if(e.target.checked){ mntMeses.clear(); }
+    buildMesFilter(); renderManutencoes();
+  };
+  pop.querySelectorAll('.ms-mes').forEach(cb=>cb.onchange=()=>{
+    cb.checked ? mntMeses.add(cb.value) : mntMeses.delete(cb.value);
+    buildMesFilter(); renderManutencoes();
+  });
+
+  atualizaBotaoMeses(meses.length);
+}
+
+function atualizaBotaoMeses(total){
+  const btn=document.getElementById('mnt-meses-btn'); if(!btn)return;
+  const n=mntMeses.size;
+  let txt;
+  if(n===0)      txt='Todo o período';
+  else if(n===1) txt=mntMesLabel([...mntMeses][0]);
+  else if(n===total) txt='Todos os '+n+' meses';
+  else           txt=n+' meses selecionados';
+  btn.textContent=txt+' ▾';
+  btn.classList.toggle('on',n>0);
+}
+
+// abre/fecha o menu de meses
+document.addEventListener('click',e=>{
+  const btn=document.getElementById('mnt-meses-btn');
+  const pop=document.getElementById('mnt-meses-pop');
+  if(!btn||!pop)return;
+  if(e.target===btn){ pop.classList.toggle('open'); return; }
+  if(!pop.contains(e.target)) pop.classList.remove('open');
+});
+
+// remove o filtro aplicado por clique no gráfico
+function limparDrill(){ mntDrill=null; renderManutencoes(); }
+
+function atualizaChipDrill(){
+  const chip=document.getElementById('mnt-drill');
+  const txt=document.getElementById('mnt-drill-txt');
+  if(!chip||!txt)return;
+  if(mntDrill){
+    txt.textContent=(mntDrill.tipo==='cat'?'Serviço: ':'Veículo: ')+mntDrill.valor;
+    chip.classList.add('show');
+  }else{
+    chip.classList.remove('show');
+  }
+}
+
 function buildCatFilter(){
   const sel=document.getElementById('mnt-cat'); if(!sel)return;
   const cur=sel.value||'all';
@@ -1001,7 +1107,16 @@ function renderManutencoes(){
   const veics=new Set(rows.map(r=>r.Placa));
   const media=nos?total/nos:0;
 
-  // agrupamento por veículo
+  // Base para os gráficos clicáveis: aplica mês e categoria, mas NÃO o
+  // próprio drill — senão o gráfico colapsaria em um item só e o usuário
+  // ficaria preso, sem conseguir trocar de seleção.
+  const semDrill=mntList().filter(r=>{
+    if(mntMeses.size && !mntMeses.has(mntMesDe(r))) return false;
+    if(mntCat!=='all' && r._cat!==mntCat) return false;
+    return true;
+  });
+
+  // agrupamento por veículo (dados filtrados, para KPIs e tabela)
   const byV={};
   rows.forEach(r=>{
     const p=r.Placa||'—';
@@ -1018,31 +1133,93 @@ function renderManutencoes(){
     {lab:'Maior Gasto',val:topGasto?topGasto[0]+' · '+brl(topGasto[1].g):'—'},
   ]);
 
-  // gasto por categoria (rosca)
-  const byC={}; rows.forEach(r=>{byC[r._cat]=(byC[r._cat]||0)+(r._total||0);});
+  atualizaChipDrill();
+
+  // gasto por categoria (rosca) — clicável
+  const byC={}; semDrill.forEach(r=>{byC[r._cat]=(byC[r._cat]||0)+(r._total||0);});
   const cE=Object.entries(byC).sort((a,b)=>b[1]-a[1]);
+  // destaca a fatia selecionada
+  const corCat=cE.map((e,i)=>{
+    const base=MNT_PAL[i%MNT_PAL.length];
+    if(mntDrill&&mntDrill.tipo==='cat') return e[0]===mntDrill.valor?base:base+'44';
+    return base;
+  });
   dc('m1');
   charts['m1']=new Chart(document.getElementById('m1'),{type:'doughnut',
-    data:{labels:cE.map(e=>e[0]),datasets:[{data:cE.map(e=>e[1]),backgroundColor:MNT_PAL,borderColor:'#fff',borderWidth:2}]},
+    data:{labels:cE.map(e=>e[0]),datasets:[{data:cE.map(e=>e[1]),backgroundColor:corCat,borderColor:'#fff',borderWidth:2}]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{
       legend:{position:'right',labels:{usePointStyle:true,pointStyle:'circle',boxWidth:8,padding:8,font:{size:10},color:'#15321f'}},
       tooltip:{...tip,callbacks:{label:c=>' '+c.label+': '+brl(c.raw)}},
       datalabels:{color:'#fff',font:{family:"'SFMono-Regular',monospace",size:9,weight:'700'},
         formatter:(v,c)=>{const t=c.dataset.data.reduce((s,x)=>s+x,0);return t&&v/t>=0.05?kfmt(v):''}}
-    },cutout:'58%'}});
+    },cutout:'58%',
+    onClick:(evt,els,chart)=>{
+      const hit=chart.getElementsAtEventForMode(evt,'nearest',{intersect:true},true);
+      const idx=hit&&hit.length?hit[0].index:(els&&els.length?els[0].index:-1);
+      if(idx<0||!cE[idx])return;
+      const label=cE[idx][0];
+      // clicar de novo no mesmo item desmarca; clicar em outro substitui
+      mntDrill=(mntDrill&&mntDrill.tipo==='cat'&&mntDrill.valor===label)?null:{tipo:'cat',valor:label};
+      renderManutencoes();
+    }}});
+  document.getElementById('m1').classList.add('clickable');
 
-  // OS por semana (respeita filtro de categoria, ignora o de semana p/ dar contexto)
-  const wk={1:0,2:0,3:0,4:0,5:0};
-  mntList().filter(r=>mntCat==='all'||r._cat===mntCat).forEach(r=>{if(wk[r._week]!=null)wk[r._week]++;});
-  bars('m2',['Sem 1','Sem 2','Sem 3','Sem 4','Sem 5'],
-    [{l:'Ordens de Serviço',d:[wk[1],wk[2],wk[3],wk[4],wk[5]],c:C.amber}],{fmt:fnum});
+  // Gráfico de evolução: por mês no geral; por semana quando há
+  // exatamente um mês selecionado (aí a visão semanal faz sentido).
+  const baseCtx=mntList().filter(r=>{
+    if(mntCat!=='all' && r._cat!==mntCat) return false;
+    if(mntDrill){
+      if(mntDrill.tipo==='cat'  && r._cat!==mntDrill.valor) return false;
+      if(mntDrill.tipo==='veic' && (r.Placa||'—')!==mntDrill.valor) return false;
+    }
+    return true;
+  });
+  const tit2=document.querySelector('#manutencoes .grid .card:nth-child(2) h3');
+  const cap2=document.querySelector('#manutencoes .grid .card:nth-child(2) .cap');
+  const umMes=(mntMeses.size===1)?[...mntMeses][0]:null;
+  if(!umMes){
+    const porMes={};
+    baseCtx.filter(r=>!mntMeses.size||mntMeses.has(mntMesDe(r)))
+      .forEach(r=>{const m=mntMesDe(r); if(m)porMes[m]=(porMes[m]||0)+1;});
+    const chaves=Object.keys(porMes).sort();
+    if(tit2)tit2.textContent='Nº de Manutenções por Mês';
+    if(cap2)cap2.textContent='Ordens de serviço abertas';
+    bars('m2',chaves.map(mntMesLabel),
+      [{l:'Ordens de Serviço',d:chaves.map(k=>porMes[k]),c:C.amber}],{fmt:fnum});
+  }else{
+    const wk={1:0,2:0,3:0,4:0,5:0};
+    baseCtx.filter(r=>mntMesDe(r)===umMes).forEach(r=>{
+      const d=parseInt(String(r['Data de abertura']||'').slice(0,2),10);
+      const s=d?Math.min(Math.floor((d-1)/7)+1,5):null;
+      if(s&&wk[s]!=null)wk[s]++;
+    });
+    if(tit2)tit2.textContent='Nº de Manutenções por Semana';
+    if(cap2)cap2.textContent=mntMesLabel(umMes)+' · ordens de serviço abertas';
+    bars('m2',['Sem 1','Sem 2','Sem 3','Sem 4','Sem 5'],
+      [{l:'Ordens de Serviço',d:[wk[1],wk[2],wk[3],wk[4],wk[5]],c:C.amber}],{fmt:fnum});
+  }
 
   // top 12 veículos por gasto (barra horizontal)
-  const vg=Object.entries(byV).sort((a,b)=>b[1].g-a[1].g).slice(0,12);
+  // Não é clicável: o filtro por veículo é feito na tabela
+  // "Veículos que Mais Deram Problema". A barra só destaca o
+  // veículo selecionado lá.
+  const byVctx={};
+  semDrill.forEach(r=>{
+    const p=r.Placa||'—';
+    byVctx[p]=byVctx[p]||{os:0,g:0,ap:r.Apelido||''};
+    byVctx[p].os++; byVctx[p].g+=(r._total||0);
+  });
+  const vg=Object.entries(byVctx).sort((a,b)=>b[1].g-a[1].g).slice(0,12);
+  const corVeic=vg.map(e=>{
+    const base=C.leaf||'#3c8c30';
+    if(mntDrill&&mntDrill.tipo==='veic') return e[0]===mntDrill.valor?base:base+'44';
+    return base;
+  });
   bars('m3',vg.map(e=>e[0]+(e[1].ap?' ('+e[1].ap+')':'')),
-    [{l:'Gasto (R$)',d:vg.map(e=>e[1].g),c:C.leaf||'#3c8c30'}],{h:true,fmt:kfmt});
+    [{l:'Gasto (R$)',d:vg.map(e=>e[1].g),c:corVeic}],{h:true,fmt:kfmt});
+  document.getElementById('m3').classList.remove('clickable');
 
-  renderVeicTable(byV);
+  renderVeicTable(byVctx);
   renderFornTable(rows);
   renderAllMnt(rows);
 }
@@ -1051,11 +1228,20 @@ function renderVeicTable(byV){
   const tb=document.querySelector('#t-veic tbody'); if(!tb)return;
   const arr=Object.entries(byV).sort((a,b)=>b[1].os-a[1].os||b[1].g-a[1].g);
   const maxOs=Math.max(...arr.map(e=>e[1].os),1);
-  tb.innerHTML=arr.length?arr.map(([p,v])=>
-    `<tr><td>${p} ${v.ap?`<span class="tag">${v.ap}</span>`:''}</td>`+
-    `<td class="num"><span class="minibar" style="width:${8+40*v.os/maxOs}px"></span>${v.os}</td>`+
-    `<td class="num">${brl(v.g)}</td></tr>`).join('')
+  tb.innerHTML=arr.length?arr.map(([p,v])=>{
+    const sel=(mntDrill&&mntDrill.tipo==='veic'&&mntDrill.valor===p);
+    return `<tr class="row-click${sel?' row-sel':''}" data-placa="${p}">`+
+      `<td>${p} ${v.ap?`<span class="tag">${v.ap}</span>`:''}</td>`+
+      `<td class="num"><span class="minibar" style="width:${8+40*v.os/maxOs}px"></span>${v.os}</td>`+
+      `<td class="num">${brl(v.g)}</td></tr>`;
+  }).join('')
     :'<tr><td colspan="3" style="text-align:center;color:var(--muted);padding:18px">Sem registros</td></tr>';
+  // clique na linha filtra pelo veículo (mesma regra dos gráficos)
+  tb.querySelectorAll('tr.row-click').forEach(tr=>tr.onclick=()=>{
+    const placa=tr.dataset.placa;
+    mntDrill=(mntDrill&&mntDrill.tipo==='veic'&&mntDrill.valor===placa)?null:{tipo:'veic',valor:placa};
+    renderManutencoes();
+  });
 }
 
 function renderFornTable(rows){
@@ -1090,12 +1276,9 @@ function renderAllMnt(rows){
 }
 
 // listeners dos filtros de manutenção
-document.querySelectorAll('.mnt-fbtn').forEach(b=>b.onclick=()=>{
-  document.querySelectorAll('.mnt-fbtn').forEach(x=>x.classList.remove('active'));
-  b.classList.add('active'); mntWeek=b.dataset.w; renderManutencoes();
-});
 document.addEventListener('change',e=>{
-  if(e.target&&e.target.id==='mnt-cat'){mntCat=e.target.value;renderManutencoes();}
+  if(!e.target)return;
+  if(e.target.id==='mnt-cat'){mntCat=e.target.value;renderManutencoes();}
 });
 document.querySelectorAll('#t-all th[data-s]').forEach(th=>th.onclick=()=>{
   const k=th.dataset.s;
