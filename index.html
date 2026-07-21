@@ -331,7 +331,7 @@
     </div>
     <div class="eyebrow">Operação Logística</div>
     <h1>Painel de Indicadores <span>/ Puxada & Distribuição</span></h1>
-    <div class="sub">Custos por Hl · Combustível · Devoluções · Diárias & Hospedagens</div>
+    <div class="sub">Custos por Hl · Combustível · Devoluções · Diárias & Hospedagens · Manutenções Infleet</div>
   </header>
 
   <div class="nav-wrap">
@@ -846,16 +846,16 @@ function renderDashboard(){
   while(D.dev_valor_mes.length<M.length)D.dev_valor_mes.push(null);
   const distAvg=avg(D.custo_log['Distribuição']),puxAvg=avg(D.custo_log['Puxada']);
   kpi('kpi-custos',[
-    {lab:'Custo Médio Distribuição (R$/Hl)',val:'R$ '+distAvg.toFixed(2),dlt:'Jan→Mai: '+((D.custo_log['Distribuição'][4]/D.custo_log['Distribuição'][0]-1)*100).toFixed(0)+'%',cls:'down'},
+    {lab:'Custo Médio Distribuição (R$/Hl)',val:'R$ '+distAvg.toFixed(2)},
     {lab:'Custo Médio Puxada (R$/Hl)',val:'R$ '+puxAvg.toFixed(2),c:'b'},
-    {lab:'Despesa Total (5m)',val:brl(sum(D.despesas['Distribuição'])+sum(D.despesas['Puxada'])),c:'t'},
-    {lab:'Receita Frete FOB (5m)',val:brl(sum(D.receita_frete)),c:'g'},
+    {lab:'Despesa Total',val:brl(sum(D.despesas['Distribuição'])+sum(D.despesas['Puxada'])),c:'t'},
+    {lab:'Receita Frete FOB',val:brl(sum(D.receita_frete)),c:'g'},
   ]);
   const totL=sum(D.litros['Distribuição'])+sum(D.litros['Puxada']);
   const totK=sum(D.km['Distribuição'])+sum(D.km['Puxada']);
   kpi('kpi-comb',[
-    {lab:'Litros Totais (5m)',val:num(totL)+' L',c:'b'},
-    {lab:'Km Totais (5m)',val:num(totK)+' km',c:'t'},
+    {lab:'Litros Totais',val:num(totL)+' L',c:'b'},
+    {lab:'Km Totais',val:num(totK)+' km',c:'t'},
     {lab:'Eficiência Distribuição',val:(sum(D.km['Distribuição'])/sum(D.litros['Distribuição'])).toFixed(2)+' km/L',c:'g'},
     {lab:'Eficiência Puxada',val:(sum(D.km['Puxada'])/sum(D.litros['Puxada'])).toFixed(2)+' km/L'},
   ]);
