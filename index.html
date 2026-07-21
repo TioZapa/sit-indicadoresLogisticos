@@ -25,6 +25,8 @@
   header{border-bottom:2px solid var(--fenix);padding-bottom:18px;margin-bottom:8px}
   .brand{display:flex;align-items:center;gap:16px;margin-bottom:14px}
   .logo{display:flex;align-items:baseline;gap:0;position:relative;line-height:1}
+  .logo-img{height:52px;width:auto;display:block;object-fit:contain}
+  .logo-fallback{display:none;align-items:baseline;position:relative;line-height:1}
   .logo .star{position:absolute;top:-13px;left:64px;color:var(--spark);font-size:20px;line-height:1;filter:drop-shadow(0 0 4px rgba(225,0,0,.4))}
   .logo .name{font-size:38px;font-weight:900;letter-spacing:.02em;color:var(--fenix)}
   .logo .tag{font-size:12.5px;font-weight:600;color:var(--olive);margin-top:2px;letter-spacing:.01em}
@@ -313,7 +315,7 @@
   .cfg-hint{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:-6px;margin-bottom:14px}
   .cfg-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
 
-  @media(max-width:760px){.grid,.custom-charts-grid{grid-template-columns:1fr}h1{font-size:21px}.logo .name{font-size:30px}.logo .star{left:50px}.month-headers,.month-row{grid-template-columns:96px 1fr}.form-row{grid-template-columns:1fr}.chart-type-grid{grid-template-columns:repeat(2,1fr)}.series-item,.series-header{grid-template-columns:1fr repeat(5,64px) 28px}}
+  @media(max-width:760px){.grid,.custom-charts-grid{grid-template-columns:1fr}h1{font-size:21px}.logo-img{height:40px}.logo .name{font-size:30px}.logo .star{left:50px}.month-headers,.month-row{grid-template-columns:96px 1fr}.form-row{grid-template-columns:1fr}.chart-type-grid{grid-template-columns:repeat(2,1fr)}.series-item,.series-header{grid-template-columns:1fr repeat(5,64px) 28px}}
 </style>
 </head>
 <div id="sheets-status"></div>
@@ -322,10 +324,13 @@
   <header>
     <div class="brand">
       <div class="logo">
-        <span class="star">✦</span>
-        <div>
-          <div class="name">FENIX</div>
-          <div class="tag">Distribuidora de Bebidas Ltda</div>
+        <img src="LOGO.png" alt="Fenix Distribuidora de Bebidas" class="logo-img" onerror="this.style.display='none';document.getElementById('logo-txt').style.display='flex'">
+        <div class="tag">Distribuidora de Bebidas Ltda</div>
+        <div id="logo-txt" class="logo-fallback">
+          <div>
+            <div class="name">FENIX</div>
+            <div class="tag">Distribuidora de Bebidas Ltda</div>
+          </div>
         </div>
       </div>
     </div>
@@ -350,7 +355,7 @@
     <div class="kpis" id="kpi-custos"></div>
     <div class="grid">
       <div class="card"><h3>Custo Logístico por Hl</h3><div class="cap">R$/Hl · por modal</div><div class="chart-box"><canvas id="c1"></canvas></div></div>
-      <div class="card"><h3>Despesas Logísticas</h3><div class="cap">R$ · Distribuição vs Puxada</div><div class="chart-box"><canvas id="c2"></canvas></div></div>
+      <div class="card"><h3>Despesas Logísticas</h3><div class="cap">R$ · Distribuição</div><div class="chart-box"><canvas id="c2"></canvas></div></div>
       <div class="card"><h3>Receita vs Custo — Puxada FOB</h3><div class="cap">R$ · margem do frete</div><div class="chart-box"><canvas id="c3"></canvas></div></div>
       <div class="card"><h3>Faturamento (Hl)</h3><div class="cap">Hl movimentados por modal</div><div class="chart-box"><canvas id="c4"></canvas></div></div>
     </div>
@@ -380,7 +385,7 @@
       <div class="card"><h3>% de Devolução por Mês</h3><div class="cap">Devoluções ÷ pedidos</div><div class="chart-box"><canvas id="d1"></canvas></div></div>
       <div class="card"><h3>Pedidos vs Devoluções</h3><div class="cap">Volume mensal</div><div class="chart-box"><canvas id="d2"></canvas></div></div>
       <div class="card"><h3>Devoluções por Motivo <span class="unit-toggle" id="d3-toggle"><button class="ut-btn active" data-u="qtd">Qtd</button><button class="ut-btn" data-u="rs">R$</button></span></h3><div class="cap" id="d3-cap">Quantidade de ocorrências</div><div class="chart-box tall"><canvas id="d3"></canvas></div></div>
-      <div class="card"><h3>Valor Perdido por Motivo <span class="unit-toggle" id="d4-toggle"><button class="ut-btn" data-u="qtd">Qtd</button><button class="ut-btn active" data-u="rs">R$</button><button class="ut-btn" data-u="pct">%</button></span></h3><div class="cap" id="d4-cap">R$ em pedidos devolvidos</div><div id="d4-fatpct" class="fatpct-badge"></div><div class="chart-box tall"><canvas id="d4"></canvas></div></div>
+      <div class="card"><h3>Valor Devolvido por Motivo <span class="unit-toggle" id="d4-toggle"><button class="ut-btn" data-u="qtd">Qtd</button><button class="ut-btn active" data-u="rs">R$</button><button class="ut-btn" data-u="pct">%</button></span></h3><div class="cap" id="d4-cap">R$ em pedidos devolvidos</div><div class="chart-box tall"><canvas id="d4"></canvas></div></div>
     </div>
   </section>
 
@@ -683,7 +688,7 @@ const DEFAULT={
 // GOOGLE SHEETS — configuração
 // ═══════════════════════════════════
 const LS_URL_KEY='fenix_sheets_url';
-const DEFAULT_SHEETS_URL='https://script.google.com/macros/s/AKfycbwDdMiYs2rIeSWVVtPmDiHMsxFxreCdEc2vVUNGXSMcq7GQPjD3wNVREGlDjDuubWLh/exec';
+const DEFAULT_SHEETS_URL='https://script.google.com/macros/s/AKfycbyyC_PXt8lEoCjEV49DMCnsi5WqrgXJxv-UdI2m4aGZttRPHB-MW6UvmtW1W0NZHgha/exec';
 let SHEETS_URL=localStorage.getItem(LS_URL_KEY)||DEFAULT_SHEETS_URL;
 
 function getUrl(){ return SHEETS_URL.trim(); }
@@ -867,14 +872,14 @@ function renderDashboard(){
     {lab:'Diárias Hospedagem',val:num(sum(D.hosp_palmas_qtd)+sum(D.hosp_gpi_qtd)),c:'g'},
   ]);
   line('c1',M,[{l:'Distribuição',d:D.custo_log['Distribuição'],c:C.amber},{l:'Puxada FOB',d:D.custo_log['Puxada FOB'],c:C.red}],f2br);
-  bars('c2',M,[{l:'Distribuição',d:D.despesas['Distribuição'],c:C.amber},{l:'Puxada',d:D.despesas['Puxada'],c:C.blue}]);
+  bars('c2',M,[{l:'Distribuição',d:D.despesas['Distribuição'],c:C.amber}]);
   dc('c3');charts['c3']=new Chart(document.getElementById('c3'),{type:'bar',data:{labels:M,datasets:[{label:'Receita do Frete',data:D.receita_frete,backgroundColor:C.green,borderRadius:5,maxBarThickness:34,datalabels:dlBar(kfmt)},{label:'Custo Total',data:D.custo_total_fob,backgroundColor:C.red,borderRadius:5,maxBarThickness:34,datalabels:dlBar(kfmt)}]},options:baseOpt()});
   line('c4',M,[{l:'Distribuição',d:D.fat_dist,c:C.amber},{l:'Puxada FOB',d:D.fat_fob,c:C.red}]);
-  bars('f1',M,[{l:'Distribuição',d:D.litros['Distribuição'],c:C.teal},{l:'Puxada',d:D.litros['Puxada'],c:C.amber}]);
-  line('f2',M,[{l:'Distribuição',d:D.km['Distribuição'],c:C.amber},{l:'Puxada',d:D.km['Puxada'],c:C.teal}]);
+  bars('f1',M,[{l:'Distribuição',d:D.litros['Distribuição'],c:C.teal},{l:'Puxada',d:D.litros['Puxada'],c:C.red}]);
+  line('f2',M,[{l:'Distribuição',d:D.km['Distribuição'],c:C.amber},{l:'Puxada',d:D.km['Puxada'],c:C.red}]);
   const effD=M.map((_,i)=>+(D.km['Distribuição'][i]/D.litros['Distribuição'][i]).toFixed(2));
   const effP=M.map((_,i)=>+(D.km['Puxada'][i]/D.litros['Puxada'][i]).toFixed(2));
-  line('f3',M,[{l:'Distribuição',d:effD,c:C.green,fill:true},{l:'Puxada',d:effP,c:C.amber,fill:true}],f2br);
+  line('f3',M,[{l:'Distribuição',d:effD,c:C.green,fill:true},{l:'Puxada',d:effP,c:C.red,fill:true}],f2br);
   renderD1();
   renderD2();
   renderD3();
@@ -919,14 +924,13 @@ function renderKpiDev(){
       {lab:'% Devolução Média (R$)',val: pct==null?'—':pct.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'%',c:'r'},
       {lab:'Valor Devolvido Total',val: totDev>0?brl(totDev):'—',c:'r'},
       {lab:'Valor Faturado Total',val: totFat>0?brl(totFat):'—',c:'b'},
-      {lab:'Valor Perdido por Motivo',val:brl(sum(Object.values(D.motivos_valor))),c:'r'},
+      {lab:'Valor Devolvido por Motivo',val:brl(sum(Object.values(D.motivos_valor))),c:'r'},
     ]);
   }else{
     kpi('kpi-dev',[
       {lab:'% Devolução Média',val:avg(D.dev_pct).toFixed(2)+'%',c:'r'},
       {lab:'Devoluções Totais',val:num(sum(D.dev_qtd))},
       {lab:'Pedidos Totais',val:num(sum(D.dev_pedidos)),c:'b'},
-      {lab:'Valor Devolvido',val:brl(sum(Object.values(D.motivos_valor))),c:'r'},
     ]);
   }
 }
@@ -968,7 +972,7 @@ function renderD2(){
     if(capEl)capEl.textContent='Volume mensal';
     dc('d2');charts['d2']=new Chart(document.getElementById('d2'),{type:'bar',data:{labels:M,datasets:[
       {label:'Pedidos',data:D.dev_pedidos,backgroundColor:C.blue,borderRadius:5,maxBarThickness:34,yAxisID:'y',datalabels:dlBar(kfmt)},
-      {type:'line',label:'Devoluções',data:D.dev_qtd,borderColor:C.amber,backgroundColor:C.amber,tension:.35,borderWidth:2.5,pointRadius:3,yAxisID:'y1',datalabels:{...dlLine(fnum,'#006030'),align:'bottom',offset:6}}
+      {type:'line',label:'Devoluções',data:D.dev_qtd,borderColor:C.red,backgroundColor:C.red,tension:.35,borderWidth:2.5,pointRadius:3,yAxisID:'y1',datalabels:{...dlLine(fnum,'#b00000'),align:'bottom',offset:6}}
     ]},options:{...baseOpt(),scales:{x:{grid:gridX},y:{grid,beginAtZero:true,position:'left'},y1:{grid:gridX,beginAtZero:true,position:'right'}}}});
   }
 }
