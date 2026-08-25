@@ -689,7 +689,13 @@ const DEFAULT={
 // ═══════════════════════════════════
 const LS_URL_KEY='fenix_sheets_url';
 const DEFAULT_SHEETS_URL='https://script.google.com/macros/s/AKfycbyyC_PXt8lEoCjEV49DMCnsi5WqrgXJxv-UdI2m4aGZttRPHB-MW6UvmtW1W0NZHgha/exec';
-let SHEETS_URL=localStorage.getItem(LS_URL_KEY)||DEFAULT_SHEETS_URL;
+// Acesso seguro ao localStorage. Dentro do Brasa a ferramenta roda num
+// <iframe sandbox> sem allow-same-origin (origem opaca), e aí qualquer
+// acesso ao localStorage lança SecurityError. O try/catch evita que isso
+// aborte o carregamento do painel. Só se perde a persistência da URL
+// customizada; o DEFAULT_SHEETS_URL continua valendo.
+const LS=(()=>{try{return window.localStorage;}catch(e){return null;}})();
+let SHEETS_URL=(LS&&LS.getItem(LS_URL_KEY))||DEFAULT_SHEETS_URL;
 
 function getUrl(){ return SHEETS_URL.trim(); }
 function hasUrl(){ return !!getUrl(); }
@@ -786,7 +792,7 @@ async function sheetReset(){
 function saveCfgUrl(){
   const val=document.getElementById('cfg-url').value.trim();
   SHEETS_URL=val;
-  localStorage.setItem(LS_URL_KEY,val);
+  if(LS) LS.setItem(LS_URL_KEY,val);
   if(val){
     updateCfgStatus('URL salva. Clique em "Recarregar Dados" para testar.');
   } else {
